@@ -6,8 +6,12 @@ Node
 {
 
   coordonnee segement;
+  
   side[0] segment suivant devant celui ci
+  
   side[0] segement suivant derriere celui ci
+  
 }
+
 
 Notons qu'un segment B traversant l'air d'un autre segment A sera decouper en deux autres segments distinct, l'un etant devant A, l'autre derriere A.
