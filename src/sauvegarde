@@ -1,0 +1,109 @@
+#include "test.h"
+
+t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
+{
+    t_line      *line_p;
+    t_line      *bestline_p;
+    t_line      best;
+    t_lst_line  *front;
+    t_lst_line  *back;
+    t_bspnode   *node_p;
+    int         step;
+    int         bestv;
+    int         v;
+    int         i;
+/*
+    if (!(node_p = malloc (sizeof(*node_p)))
+        return (NULL);
+	memset(node_p, 0, sizeof(*node_p));
+    */
+    bzero(node_p, sizeof(t_bspnode));
+    bestv = INT_MAX;
+	bestline_p = NULL;
+    i = -1;
+    while (++i < lines->count)
+    {
+        *line_p = lines->lst[i];
+        v = evaluate_split(lines, line_p, bestv, 0);
+        if (v < bestv)
+        {
+            bestv = v;
+            bestline_p = line_p;
+        }
+    }
+    /*
+    si aucune des lignes ne doit être divisée,
+    les lignes restantes sont convexes et forment un nœud terminal
+
+    Un objet géométrique est dit convexe lorsque, chaque fois qu'on y prend
+    deux points A et B, le segment [A, B] qui les joint y est entièrement contenu.
+    Ainsi un cube plein, un disque ou une boule sont convexes, mais un objet creux
+    ou bosselé ne l'est pas.
+    */
+    if (bestv == INT_MAX)
+    {
+        node_p->line = &lines->lst[0];
+        return(node_p);
+    }
+
+    make_divlinefromworld(&node_p->divline, bestline_p);
+    front->count = 0;
+    back->count = 0;
+    execute_split(lines, bestline_p, front, back, cuts);
+    node_p->side[0] = bspbuild(front, cuts);
+	node_p->side[1] = bspbuild(back, cuts);
+
+	return node_p;
+}
+
+void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
+{
+    int     count;
+    int     i;
+
+    count = nseg;
+    i = -1;
+    while (++i < count)
+    {
+        lines->lst[i].p1 = origine[i].p1;
+        lines->lst[i].p2 = origine[i].p2;
+        lines->lst[i].linedef = i;
+        lines->lst[i].side = 0;
+        lines->lst[i].offset = 0;
+		lines->lst[i].grouped = false;
+        if (origine[i].flags & TWOSIDED)
+        {
+            lines->lst[i].p1 = origine[i].p2;
+            lines->lst[i].p2 = origine[i].p1;
+            lines->lst[i].linedef = i;
+            lines->lst[i].side = 1;
+            lines->lst[i].offset = 0;
+    		lines->lst[i].grouped = false;
+
+        }
+        printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", i, count, lines->lst[i].p1.x, lines->lst[i].p1.y,
+            lines->lst[i].p2.x, lines->lst[i].p2.y, lines->lst[i].side);
+    }
+    /*
+    if (lst[0] == NULL)
+        return (NULL);
+    */
+}
+
+
+void make_bsp(t_polygon lst_p[256], int nseg)
+{
+    t_lst_line  lines;
+    int         cuts;
+    t_bspnode   *node_p;
+
+    cuts = 0;
+    bzero(&lines, sizeof(t_lst_line));
+
+    printf("BUILD BSP\n" );
+    make_seg(&lines, lst_p, nseg);
+    printf("- make_seg ok\n" );
+    lines.count = nseg;
+    //check lines;
+    node_p = bspbuild(&lines, &cuts);
+}
