@@ -7,9 +7,9 @@ Node
 
   coordonnee segement;
   
-  side[0] segment suivant devant celui ci
+  side[0] node suivant dont le segment est devant celui ci
   
-  side[0] segement suivant derriere celui ci
+  side[1] node suivant dont le segment est derriere celui ci
   
 }
 
