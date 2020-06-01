@@ -1,4 +1,4 @@
-#include "test.h"
+#include "../include/bsp.h"
 
 void cpy_line(t_line *dest, t_line *src)
 {
@@ -42,20 +42,23 @@ t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
             bestline_p = line_p;
         }
     }
+    printf("\nbestline_p %d (%f,%f)(%f,%f)\n", bestline_p.linedef,
+        bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
     node_p = malloc (sizeof(*node_p));
 	memset (node_p, 0, sizeof(*node_p));
     if (v[1] == INT_MAX)
     {
         //node_p->line = lines->lst[0];
-        cpy_line(&node_p->line, &bestline_p);
         return(node_p);
     }
     make_divlinefromworld(&node_p->divline, &bestline_p);
     init_lstline(&front);
     init_lstline(&back);
+    cpy_line(&node_p->line, &bestline_p);
     execute_split(lines, &bestline_p, &front, &back, cuts);
     node_p->side[0] = bspbuild(&front, cuts);
 	node_p->side[1] = bspbuild(&back, cuts);
+
 	return (node_p);
 }
 
@@ -70,7 +73,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
     {
         lines->lst[i].p1 = origine[i].p1;
         lines->lst[i].p2 = origine[i].p2;
-        lines->lst[i].linedef = i;
+        lines->lst[i].linedef = i + 1;
         lines->lst[i].side = 0;
         lines->lst[i].offset = 0;
 		lines->lst[i].grouped = false;
@@ -78,7 +81,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
         {
             lines->lst[i].p1 = origine[i].p2;
             lines->lst[i].p2 = origine[i].p1;
-            lines->lst[i].linedef = i;
+            lines->lst[i].linedef = i + 1;
             lines->lst[i].side = 1;
             lines->lst[i].offset = 0;
     		lines->lst[i].grouped = false;
