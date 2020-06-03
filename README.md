@@ -1,17 +1,17 @@
 # BSP
 
-Il s'agit ici de faire un bsp sur le model de celui mis au point par John Carmak pour DOOM. L'arbre binaire doit classer chaques segments de la map suivant ce model:
+Il s'agit ici de faire un bsp sur le model de celui mis au point par John Carmak pour DOOM. L'arbre binaire doit classer chaque segment de la map de maniaire obtimal suivant le model suivant :
 
 Node
 {
 
   coordonnee segement;
   
-  side[0] node svt devant
+  side[0] node suivant dont le segment est devant celui ci
   
-  side[1] node svt derriere
+  side[1] node suivant dont le segment est derriere celui ci
   
 }
 
-Une segment B devant/derriere un segment A est aussi le plus proche devant/derriere A.
-Notons qu'un segment B traversant l'air d'un autre segment A sera decoupeé en deux autres segments distinct, l'un etant devant A, l'autre derriere A.
+
+Notons qu'un segment B traversant l'air d'un autre segment A sera decouper en deux autres segments distinct, l'un etant devant A, l'autre derriere A.

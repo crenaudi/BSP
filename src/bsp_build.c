@@ -2,10 +2,6 @@
 
 void cpy_line(t_line *dest, t_line *src)
 {
-    /*
-    if (!(dest = (t_line *)malloc(sizeof(t_line))))
-        printf("ERROR MALLOC\n");
-        */
     dest->p1 = src->p1;
     dest->p2 = src->p2;
     dest->side = src->side;
@@ -27,14 +23,15 @@ t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
     t_lst_line  back;
     int         v[2];
     t_bspnode   *node_p;
-    //int         bestv, v;
     int         i;
 
     v[1] = INT_MAX;
+    printf("\ncount %d\n", lines->count);
     i = -1;
     while (++i < lines->count)
     {
         line_p = lines->lst[i];
+        printf("%d (%f,%f)(%f,%f)\n", line_p.linedef,line_p.p1.x, line_p.p1.y, line_p.p2.x, line_p.p2.y);
         v[0] = evaluate_split(lines, &line_p, v[1], 0);
         if (v[0] < v[1])
         {
@@ -42,13 +39,13 @@ t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
             bestline_p = line_p;
         }
     }
-    printf("\nbestline_p %d (%f,%f)(%f,%f)\n", bestline_p.linedef,
+    printf("bestline_p %d (%f,%f)(%f,%f)\n", bestline_p.linedef,
         bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
     node_p = malloc (sizeof(*node_p));
 	memset (node_p, 0, sizeof(*node_p));
     if (v[1] == INT_MAX)
     {
-        //node_p->line = lines->lst[0];
+        cpy_line(&node_p->line, &line_p);
         return(node_p);
     }
     make_divlinefromworld(&node_p->divline, &bestline_p);
@@ -87,7 +84,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
     		lines->lst[i].grouped = false;
 
         }
-        printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", i, count, lines->lst[i].p1.x, lines->lst[i].p1.y,
+        printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", lines->lst[i].linedef, count, lines->lst[i].p1.x, lines->lst[i].p1.y,
             lines->lst[i].p2.x, lines->lst[i].p2.y, lines->lst[i].side);
     }
     /*
