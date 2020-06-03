@@ -96,34 +96,31 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             side = lineonside(&line_p, &dvl);
             if (side == 0)
             {
-                //frontlist->lst[i] = line_p;
-                cpy_line(&frontlist->lst[i], &line_p);
-                printf("front %d (%f,%f)(%f,%f)\n", frontlist->lst[i].linedef,
-                    frontlist->lst[i].p1.x, frontlist->lst[i].p1.y, frontlist->lst[i].p2.x, frontlist->lst[i].p2.y);
+                cpy_line(&frontlist->lst[frontlist->count], &line_p);
+                printf("front %d (%f,%f)(%f,%f)\n", frontlist->lst[frontlist->count].linedef,
+                    frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
+                    frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
                 frontlist->count += 1;
             }
             else if (side == 1)
             {
-                //backlist->lst[i] = line_p;
-                cpy_line(&backlist->lst[i], &line_p);
-                printf("back %d (%f,%f)(%f,%f)\n", backlist->lst[i].linedef,
-                    backlist->lst[i].p1.x, backlist->lst[i].p1.y, backlist->lst[i].p2.x, backlist->lst[i].p2.y);
+                cpy_line(&backlist->lst[backlist->count], &line_p);
+                printf("back %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
+                    backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y, backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
                 backlist->count += 1;
             }
             else if (side == -2)
             {
                 new_p = cutline(&line_p, &dvl, cuts);
-                //frontlist->lst[i] = line_p;
-                cpy_line(&frontlist->lst[i], &line_p);
-
-                printf("side -2 front %d (%f,%f)(%f,%f)\n", frontlist->lst[i].linedef,
-                    frontlist->lst[i].p1.x, frontlist->lst[i].p1.y, frontlist->lst[i].p2.x, frontlist->lst[i].p2.y);
+                cpy_line(&frontlist->lst[frontlist->count], &line_p);
+                printf("side -2 front %d (%f,%f)(%f,%f)\n", frontlist->lst[frontlist->count].linedef,
+                    frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
+                    frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
                 frontlist->count += 1;
-                //backlist->lst[i] = new_p;
-                cpy_line(&backlist->lst[i], &new_p);
-
-                printf("side -2 back %d (%f,%f)(%f,%f)\n", backlist->lst[i].linedef,
-                    backlist->lst[i].p1.x, backlist->lst[i].p1.y, backlist->lst[i].p2.x, backlist->lst[i].p2.y);
+                cpy_line(&backlist->lst[backlist->count], &new_p);
+                printf("side -2 back %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
+                    backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
+                    backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
                 backlist->count += 1;
             }
         }
