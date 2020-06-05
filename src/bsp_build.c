@@ -26,12 +26,10 @@ t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
     int         i;
 
     v[1] = INT_MAX;
-    printf("\ncount %d\n", lines->count);
     i = -1;
     while (++i < lines->count)
     {
         line_p = lines->lst[i];
-        printf("%d (%f,%f)(%f,%f)\n", line_p.linedef,line_p.p1.x, line_p.p1.y, line_p.p2.x, line_p.p2.y);
         v[0] = evaluate_split(lines, &line_p, v[1], 0);
         if (v[0] < v[1])
         {
@@ -39,8 +37,6 @@ t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
             bestline_p = line_p;
         }
     }
-    printf("bestline_p %d (%f,%f)(%f,%f)\n", bestline_p.linedef,
-        bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
     node_p = malloc (sizeof(*node_p));
 	memset (node_p, 0, sizeof(*node_p));
     if (v[1] == INT_MAX)
@@ -73,24 +69,15 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
         lines->lst[i].linedef = i + 1;
         lines->lst[i].side = 0;
         lines->lst[i].offset = 0;
+        lines->lst[i].sector = origine[i].sector;
 		lines->lst[i].grouped = false;
         if (origine[i].flags & TWOSIDED)
         {
             lines->lst[i].p1 = origine[i].p2;
             lines->lst[i].p2 = origine[i].p1;
-            lines->lst[i].linedef = i + 1;
             lines->lst[i].side = 1;
-            lines->lst[i].offset = 0;
-    		lines->lst[i].grouped = false;
-
         }
-        printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", lines->lst[i].linedef, count, lines->lst[i].p1.x, lines->lst[i].p1.y,
-            lines->lst[i].p2.x, lines->lst[i].p2.y, lines->lst[i].side);
     }
-    /*
-    if (lst[0] == NULL)
-        return (NULL);
-    */
 }
 
 
@@ -102,10 +89,14 @@ void make_bsp(t_polygon lst_p[256], int nseg)
 
     cuts = 0;
 
-    printf("\nBUILD BSP :\n\n" );
     make_seg(&lines, lst_p, nseg);
     lines.count = nseg;
-    //check lines;
     node = bspbuild(&lines, &cuts);
     print_bsp(node);
 }
+/*
+printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", lines->lst[i].linedef, count, lines->lst[i].p1.x, lines->lst[i].p1.y,
+    lines->lst[i].p2.x, lines->lst[i].p2.y, lines->lst[i].side);
+    printf("bestline_p %d (%f,%f)(%f,%f)\n", bestline_p.linedef,
+        bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
+*/

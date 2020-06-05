@@ -31,14 +31,23 @@ struct s_polygon
     int         sector;
 };
 
+struct s_divline
+{
+    t_vecf2     p;
+    float       dx;
+    float       dy;
+};
+
 struct s_line
 {
     t_vecf2         p1;
     t_vecf2         p2;
-    int             side;
+    int             side;//bord de secteur 1
     int             linedef;
     int             offset;
-    bool            grouped;
+    int             flags;//transparence ex
+    int             sector;
+    bool            grouped;//pour ne pas etre pris en compte deux fois
 };
 
 struct s_lst_line
@@ -47,38 +56,32 @@ struct s_lst_line
     int             count;
 };
 
-struct s_divline
+struct s_bspnode
 {
-    t_vecf2     p;
-    float       dx;
-    float       dy;
+	//float				bbox[4];
+    t_line              line;
+    t_divline           divline;
+    struct s_bspnode    *side[2];
 };
 
 struct s_sector
 {
-    int         n_polygon;
-    t_polygon   *polygons;
-    t_bspnode   *bsp;
+    int         h_ceil;
+    int         h_floor;
     int         n_neighboor;
+    t_bspnode   *bsp;
     t_sector    **neighboors;
-    //    t_texture   *wall;
-    //    t_texture   *ceil;
-    //    t_texture   *floor;
+    t_texture   *wall;
+    t_texture   *ceil;
+    t_texture   *floor;
 };
 
 struct s_map
 {
-    t_bspnode   *start;
     int         nb_sectors;
+    int         *z_buffer[2];
+    t_bspnode   *lines;
     t_sector    sectors[];
-};
-
-struct s_bspnode
-{/*
-	float					bbox[4];*/
-    t_line              line;
-    t_divline           divline;
-    struct s_bspnode    *side[2];
 };
 
 void        make_divlinefromworld(t_divline *dvl, t_line *l);
