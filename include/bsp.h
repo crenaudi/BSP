@@ -68,9 +68,7 @@ struct s_sector
 {
     int         h_ceil;
     int         h_floor;
-    int         n_neighboor;
     t_bspnode   *bsp;
-    t_sector    **neighboors;
     t_texture   *wall;
     t_texture   *ceil;
     t_texture   *floor;
