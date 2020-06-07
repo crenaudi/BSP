@@ -8,7 +8,9 @@
 # include <limits.h>
 # include <strings.h>
 
-#define TWOSIDED 4
+#define TWOSIDED    4
+#define MAXWALL    256
+#define MAXSPRITE  128
 
 typedef float			    t_vecf2 __attribute__((ext_vector_type(2)));
 typedef unsigned char		t_u16;
@@ -44,6 +46,17 @@ struct s_line
     t_vecf2         p2;
     int             side;//bord de secteur 1
     int             linedef;
+    /*
+    offset  Size (bytes)
+    0        2	     Partition line x coordinate
+    2	     2	     Partition line y coordinate
+    4	     2	     Change in x to end of partition line
+    6	     2	     Change in y to end of partition line
+    8	     8     	 Right bounding box
+    16	     8	     Left bounding box
+    24	     2	     Right child
+    26	     2       Left child
+    */
     int             offset;
     int             flags;//transparence ex
     int             sector;
@@ -58,7 +71,13 @@ struct s_lst_line
 
 struct s_bspnode
 {
-	//float				bbox[4];
+    /*
+    boundary box
+    bbox se compose de quatre valeurs courtes (haut, bas, gauche et droite)
+    - limites supérieure et inférieure de la coordonnée y
+    - limites inférieure et supérieure de la coordonnée x (dans cet ordre).
+    */
+	float				bbox[4];
     t_line              line;
     t_divline           divline;
     struct s_bspnode    *side[2];
@@ -68,7 +87,7 @@ struct s_sector
 {
     int         h_ceil;
     int         h_floor;
-    t_bspnode   *bsp;
+    t_obj       obj[];//128 max
     t_texture   *wall;
     t_texture   *ceil;
     t_texture   *floor;
@@ -77,8 +96,7 @@ struct s_sector
 struct s_map
 {
     int         nb_sectors;
-    int         *z_buffer[2];
-    t_bspnode   *lines;
+    t_bspnode   *bsp;
     t_sector    sectors[];
 };
 
