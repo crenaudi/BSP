@@ -6,8 +6,8 @@ static t_polygon info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
 
     *n += 1;
     p.n = *n;
-    p.p1 = p1;
-    p.p2 = p2;
+    p.p1 = p1 * 8;
+    p.p2 = p2 * 8;
     p.high = 0;
     p.mod = 0;
     p.flags = sided;
@@ -19,16 +19,24 @@ int main(void)
 {
     t_polygon   p[256];
     int         n;
+    t_bspnode   *node;
 
     n = 0;
-    p[0] = info((t_vecf2){2,6}, (t_vecf2){2,11}, &n, 0);
-    p[1] = info((t_vecf2){2,11}, (t_vecf2){8,13}, &n, 0);
-    p[2] = info((t_vecf2){8,13}, (t_vecf2){11,10}, &n, 0);
-    p[3] = info((t_vecf2){11,10}, (t_vecf2){9,3}, &n, 0);
-    p[4] = info((t_vecf2){9,3}, (t_vecf2){2,6}, &n, 0);
-    p[5] = info((t_vecf2){6,6}, (t_vecf2){8,8}, &n, TWOSIDED);
-    p[6] = info((t_vecf2){4,10}, (t_vecf2){6,6}, &n, TWOSIDED);
-    p[7] = info((t_vecf2){6,9}, (t_vecf2){8,11}, &n, TWOSIDED);
-    make_bsp(p, n);
+    p[0] = info((t_vecf2){2,5}, (t_vecf2){7,2}, &n, 0);
+    p[1] = info((t_vecf2){7,2}, (t_vecf2){18,2}, &n, 0);
+    p[2] = info((t_vecf2){18,2}, (t_vecf2){22,6}, &n, 0);
+    p[3] = info((t_vecf2){22,6}, (t_vecf2){27,6}, &n, 0);
+    p[4] = info((t_vecf2){27,6}, (t_vecf2){27,9}, &n, 0);
+    p[5] = info((t_vecf2){27,9}, (t_vecf2){24,9}, &n, 0);
+    p[6] = info((t_vecf2){24,9}, (t_vecf2){16,18}, &n, 0);
+    p[7] = info((t_vecf2){16,18}, (t_vecf2){2,14}, &n, 0);
+    p[8] = info((t_vecf2){2,14}, (t_vecf2){2,5}, &n, 0);
+    p[9] = info((t_vecf2){9,12}, (t_vecf2){5,6}, &n, TWOSIDED);
+    p[10] = info((t_vecf2){5,6}, (t_vecf2){7,4}, &n, TWOSIDED);
+    p[11] = info((t_vecf2){7,4}, (t_vecf2){12,11}, &n, TWOSIDED);
+    p[11] = info((t_vecf2){12,11}, (t_vecf2){17,5}, &n, TWOSIDED);
+    p[11] = info((t_vecf2){17,5}, (t_vecf2){14,2}, &n, TWOSIDED);
+    node = make_bsp(p, n);
+    close_bsp(node);
     return (0);
 }

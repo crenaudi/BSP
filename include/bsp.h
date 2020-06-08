@@ -87,10 +87,10 @@ struct s_sector
 {
     int         h_ceil;
     int         h_floor;
-    t_obj       obj[];//128 max
-    t_texture   *wall;
-    t_texture   *ceil;
-    t_texture   *floor;
+    //t_obj       obj[];//128 max
+    //t_texture   *wall;
+    //t_texture   *ceil;
+    //t_texture   *floor;
 };
 
 struct s_map
@@ -119,8 +119,8 @@ void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontl
 void        cpy_line(t_line *dest, t_line *src);
 t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
-void        make_bsp(t_polygon lst_p[256], int nseg);
-
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
+void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
 
 

@@ -60,7 +60,8 @@ void    bsp_renderer(t_player *pl, t_map *mp)
     t_lst_line  plines;
     t_bspnode   *tmp;
 
-    tmp = first_visible_node(map->bsp, pl);
+	tmp = map->bsp;
+    tmp = first_visible_node(tmp, pl);
     plines.count = 0;
     make_printable_list(&plines, tmp, pl);
 }

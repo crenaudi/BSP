@@ -80,8 +80,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
     }
 }
 
-
-void make_bsp(t_polygon lst_p[256], int nseg)
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg)
 {
     t_lst_line  lines;
     int         cuts;
@@ -93,6 +92,7 @@ void make_bsp(t_polygon lst_p[256], int nseg)
     lines.count = nseg;
     node = bspbuild(&lines, &cuts);
     print_bsp(node);
+    return (node);
 }
 /*
 printf("%d / %d p1(%f,%f) p2(%f,%f) side = %d\n", lines->lst[i].linedef, count, lines->lst[i].p1.x, lines->lst[i].p1.y,

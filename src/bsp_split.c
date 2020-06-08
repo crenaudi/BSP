@@ -12,7 +12,7 @@ int     evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade, int gr
     nback = 0;
     info[0] = -1;
     make_divlinefromworld(&dvl, spliton);
-    while (++info[1] < lines->count)
+    while (++info[0] < lines->count)
     {
         line_p = lines->lst[info[0]];
         if (&line_p == spliton)
