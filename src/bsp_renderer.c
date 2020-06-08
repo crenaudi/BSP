@@ -1,67 +1,91 @@
 #include "../include/bsp.h"
 
-struct					s_cam2d
+static float		onview(t_player *pl, float x, float y)
 {
-	float				fov;
-	float				half_fov;
-	float				speed_move;
-	float				speed_angle;
-	t_vecf2				dir;
-};
+    float   dx;
+    float   dy;
+	float 	angle;
 
-struct			s_player
+    dx = sinf(pl->eyes_dir);
+   	dy = cosf(pl->eyes_dir);
+    angle = atan2f(dy, dx) - atan2f(y, x);
+    if (angle < -API)
+        angle += TWOPI;
+    if (angle > API)
+        angle -= TWOPI;
+    if (fabs(angle) < pl->cam.half_fov)
+        return (angle);
+    else
+        return (ERROR);
+}
+
+static float		seg_onview(t_player *pl, t_vecf2 a, t_vecf2 b)
 {
-    t_cam2d		camera;
-	float		coord_x;
-	float		coord_y;
-	float		eyes_dir;
-	int			pos_x;
-	int			pos_y;
-	int			wp;
-	int			pv;
-};
+    float   mdlx;
+	float   mdly;
+
+	if (onview(pl, a.x, a.y) != ERROR || onview(pl, b.x, b.y) != ERROR)
+		return (0);
+	mdlx = a.x + (b.x - a.x) / 2.;
+	mdly = a.y + (b.y - a.y) / 2.;
+	if (onview(pl, mdlx, mdly) != ERROR)
+		return (0);
+	return (-1);
+}
 
 void   render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl)
 {
     int side;
 
-    if (plines->count >= 255 || node->side == 1)
+	side = 0;
+    if (node->line.side == 0 && plines->count < 256 /* && node->side[0] == visible && none already in list*/)
     {
-        cpy_line(&plines[plines->count], &node->line);
-        return ;
+		plines->count++;
+        render_lstlines(plines, node->side[0], pl);
     }
-    if (/*node == side 1 && plines->count < 256*/ && node->side[0] == visible && none already in list)
+
+	if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
+        cpy_line(&plines->lst[plines->count], &node->line);
+
+    if (node->line.side == 0 && plines->count < 256 /* && node->side[1] == visible && none already in list*/)
     {
-        render_lstlines(pl, node->side[0], pl);
-        cpy_line(&plines[plines->count], &node->line);
         plines->count++;
+        render_lstlines(plines, node->side[1], pl);
     }
-    if (/*node == side 1 && plines->count < 256*/ node->side[1] == visible && none already in list)
-    {
-        cpy_line(&plines[plines->count], &node->line);
-        plines->count++;
-        render_lstlines(pl, node->side[1], pl);
-    }
-    return ;
+	if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
+        cpy_line(&plines->lst[plines->count], &node->line);
 }
 
-t_bspnode   *first_visible_node(t_player *pl, t_map *mp)
+t_bspnode   *first_visible_node(t_player *pl, t_bspnode *node)
 {
-    if (node == visible)
-        return (node);
+	int side;
+
+    if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
+		return (node);
     else
-        (point on side == font) ?
-        sort_first_visible_node(node->side[0], pl) :
-        sort_first_visible_node(node->side[1], pl);
+	{
+		side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
+		first_visible_node(pl, node->side[side]);
+	}
+	return (node);
 }
 
-void    bsp_renderer(t_player *pl, t_map *mp)
+void    bsp_renderer(t_player *pl, t_bspnode *node)
 {
     t_lst_line  plines;
     t_bspnode   *tmp;
+	int			i;
 
-	tmp = map->bsp;
-    tmp = first_visible_node(tmp, pl);
+	tmp = node;
+    tmp = first_visible_node(pl, tmp);
     plines.count = 0;
-    make_printable_list(&plines, tmp, pl);
+    render_lstlines(&plines, tmp, pl);
+	printf("Printable lines :\n" );
+	i = -1;
+	while (++i < plines.count)
+	{
+		printf("line %d (%f,%f) (%f,%f)\n", plines.lst[i].linedef,
+			plines.lst[i].p1.x, plines.lst[i].p1.y,
+			plines.lst[i].p2.x, plines.lst[i].p2.y);
+	}
 }

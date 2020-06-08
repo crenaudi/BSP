@@ -8,9 +8,14 @@
 # include <limits.h>
 # include <strings.h>
 
-#define TWOSIDED    4
+#define ERROR      -1
+#define TWOSIDED   4
 #define MAXWALL    256
 #define MAXSPRITE  128
+# define API		3.1415927
+# define API_4		0.7853982
+# define API_34		2.3561945
+# define TWOPI		6.2831854
 
 typedef float			    t_vecf2 __attribute__((ext_vector_type(2)));
 typedef unsigned char		t_u16;
@@ -21,6 +26,8 @@ typedef struct s_line       t_line;
 typedef struct s_lst_line   t_lst_line;
 typedef struct s_divline    t_divline;
 typedef struct s_bspnode    t_bspnode;
+typedef struct s_cam2d      t_cam2d;
+typedef struct s_player     t_player;
 
 struct s_polygon
 {
@@ -100,6 +107,21 @@ struct s_map
     t_sector    sectors[];
 };
 
+struct					s_cam2d
+{
+	float		fov;
+	float		half_fov;
+	t_vecf2		dir;
+};
+
+struct			s_player
+{
+    t_cam2d		cam;
+	float		coord_x;
+	float		coord_y;
+	float		eyes_dir;
+};
+
 void        make_divlinefromworld(t_divline *dvl, t_line *l);
 float       equation_plan(t_divline *v1, t_divline *v2);
 float       cross_plan(t_divline *v1, t_divline *v2);
@@ -122,6 +144,8 @@ void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
 t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
-
+t_bspnode   *first_visible_node(t_player *pl, t_bspnode *node);
+void        bsp_renderer(t_player *pl, t_bspnode *node);
+void        render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl);
 
 #endif

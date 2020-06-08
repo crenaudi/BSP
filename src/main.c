@@ -1,6 +1,6 @@
 #include "../include/bsp.h"
 
-static t_polygon info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
+static t_polygon    info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
 {
     t_polygon   p;
 
@@ -15,11 +15,33 @@ static t_polygon info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
     return (p);
 }
 
+static t_cam2d		init_cam2d(void)
+{
+	t_cam2d		c;
+
+	bzero(&c, sizeof(t_cam2d));
+	c.fov = 3.1415927 / 3;
+	c.half_fov = c.fov / 2.0f;
+	c.dir = 0;
+	return (c);
+}
+
+static t_player	    init_player(void)
+{
+	t_player	p;
+
+	p.coord_x = 11. * 8.;
+	p.coord_y = 5. * 8.;
+	p.eyes_dir = 0.0f;
+	return (p);
+}
+
 int main(void)
 {
     t_polygon   p[256];
     int         n;
     t_bspnode   *node;
+    t_player    player;
 
     n = 0;
     p[0] = info((t_vecf2){2,5}, (t_vecf2){7,2}, &n, 0);
@@ -36,7 +58,10 @@ int main(void)
     p[11] = info((t_vecf2){7,4}, (t_vecf2){12,11}, &n, TWOSIDED);
     p[11] = info((t_vecf2){12,11}, (t_vecf2){17,5}, &n, TWOSIDED);
     p[11] = info((t_vecf2){17,5}, (t_vecf2){14,2}, &n, TWOSIDED);
+    player = init_player();
+    player.cam = init_cam2d();
     node = make_bsp(p, n);
+    bsp_renderer(&player, node);
     close_bsp(node);
     return (0);
 }
