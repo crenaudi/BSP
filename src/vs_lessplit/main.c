@@ -6,8 +6,8 @@ static t_polygon    info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
 
     *n += 1;
     p.n = *n;
-    p.p1 = p1 * 10.;
-    p.p2 = p2 * 10.;
+    p.p1 = p1 * 10;
+    p.p2 = p2 * 10;
     p.high = 0;
     p.mod = 0;
     p.flags = sided;
@@ -30,8 +30,8 @@ static t_player	    init_player(void)
 {
 	t_player	p;
 
-	p.coord_x = 8. * 10.;
-	p.coord_y = 8. * 10.;
+	p.coord_x = 11. * 8.;
+	p.coord_y = 5. * 8.;
 	p.eyes_dir = 0.0f;
 	return (p);
 }
@@ -54,13 +54,13 @@ int main(void)
     p[8] = info((t_vecf2){2,14}, (t_vecf2){2,5}, &n, 0);
     p[9] = info((t_vecf2){9,12}, (t_vecf2){5,6}, &n, TWOSIDED);
     p[10] = info((t_vecf2){5,6}, (t_vecf2){7,4}, &n, TWOSIDED);
-    p[11] = info((t_vecf2){7,5}, (t_vecf2){12,11}, &n, TWOSIDED);
+    p[11] = info((t_vecf2){7,4}, (t_vecf2){12,11}, &n, TWOSIDED);
     p[12] = info((t_vecf2){12,11}, (t_vecf2){17,5}, &n, TWOSIDED);
     p[13] = info((t_vecf2){17,5}, (t_vecf2){14,2}, &n, TWOSIDED);
     printf("%d\n", n);
     player = init_player();
     player.cam = init_cam2d();
-    make_bsp(p, n, (t_vecf2){player.coord_x, player.coord_y});
+    make_bsp(p, n);
     //bsp_renderer(&player, node);
     return (0);
 }

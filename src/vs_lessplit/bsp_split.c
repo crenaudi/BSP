@@ -1,59 +1,5 @@
 #include "../include/bsp.h"
 
-
-float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
-{
-    float dist1;
-    float dist2;
-
-    dist1 = sqrtf((pt.x - s1.x) * (pt.x - s1.x) + (pt.y - s1.y) * (pt.y - s1.y));
-    dist2 = sqrtf((pt.x - s2.x) * (pt.x - s2.x) + (pt.y - s2.y) * (pt.y - s2.y));
-    printf("s1 = %f, s2 = %f\n", dist1, dist2);
-    return ((dist1 < dist2) ? dist1 : dist2);
-}
-
-t_vecf2   point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
-{
-    float dist1;
-    float dist2;
-
-    dist1 = sqrtf((pt.x - s1.x) + (pt.y - s1.y));
-    dist2 = sqrtf((pt.x - s2.x) + (pt.y - s2.y));
-    return ((dist1 < dist2) ? s1 : s2);
-}
-
-t_line evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt)
-{
-    t_divline   dvl;
-    t_line      line_p;
-    t_line      bestline;
-    int         i;
-    int         dist;
-
-    if (lines->count < 2)
-        return (lines->lst[0]);
-    bestline = lines->lst[0];
-    i = -1;
-    while (++i < lines->count)
-    {
-        line_p = lines->lst[i];
-        make_divlinefromworld(&dvl, &line_p);
-        if (pointonside(pt, &dvl) == -1)
-        {
-            printf("line %d colinear\n", line_p.linedef);
-            return (line_p);
-        }
-        printf("line %d ", line_p.linedef);
-        dist = dist_seg2point(line_p.p1, line_p.p2, pt);
-        if (dist < bestdist)
-        {
-            bestdist = dist;
-            bestline = line_p;
-        }
-    }
-    return (bestline);
-}
-
 int     evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade, int grade)
 {
     t_divline   dvl;

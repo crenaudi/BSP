@@ -139,13 +139,17 @@ void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontl
 //t_line     lresearch(t_lst_line *lines, int *bestv, int step);
 //void    lresearch(t_lst_line *lines, t_line *bestline, int *bestv, int step);
 void        cpy_line(t_line *dest, t_line *src);
-t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
+t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
-t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_vecf2 pl_pos);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
 t_bspnode   *first_visible_node(t_player *pl, t_bspnode *node);
 void        bsp_renderer(t_player *pl, t_bspnode *node);
 void        render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl);
+float       dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
+t_vecf2     point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
+t_line      evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt);
+float		cross2vecf(t_vecf2 a, t_vecf2 b);
 
 #endif

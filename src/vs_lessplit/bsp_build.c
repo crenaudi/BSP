@@ -15,35 +15,49 @@ static void        init_lstline(t_lst_line *lines)
     memset(&lines->lst, 256, sizeof(t_line));
 }
 
-t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts)
+t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
 {
-    t_line      bestline;
+    t_line      line_p;
+    t_line      bestline_p;
     t_lst_line  front;
     t_lst_line  back;
+    int         v[2];
     t_bspnode   *node_p;
     int         i;
 
+    v[1] = INT_MAX;
+    i = -1;
     if (lines->count == 0)
         return (NULL);
-    bestline = evaluate_closer(lines, INT_MAX, pt);
-
-    printf("\nbestline_p %d (%f,%f)(%f,%f)\n\n", bestline.linedef,
-        bestline.p1.x, bestline.p1.y, bestline.p2.x, bestline.p2.y);
-
+    bestline_p = lines->lst[0];
+    while (++i < lines->count)
+    {
+        line_p = lines->lst[i];
+        printf("line_p %d (%f,%f)(%f,%f)\n", line_p.linedef,
+                line_p.p1.x, line_p.p1.y, line_p.p2.x, line_p.p2.y);
+        v[0] = evaluate_split(lines, &line_p, v[1], 0);
+        if (v[0] < v[1])
+        {
+            v[1] = v[0];
+            bestline_p = line_p;
+        }
+    }
+    printf("\nbestline_p %d (%f,%f)(%f,%f)\n\n", bestline_p.linedef,
+        bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
     node_p = malloc (sizeof(*node_p));
 	memset (node_p, 0, sizeof(*node_p));
-    if (lines->count < 2)
+    if (v[1] == INT_MAX && lines->count < 2)
     {
-        cpy_line(&node_p->line, &bestline);
+        cpy_line(&node_p->line, &line_p);
         return(node_p);
     }
-    make_divlinefromworld(&node_p->divline, &bestline);
+    make_divlinefromworld(&node_p->divline, &bestline_p);
     init_lstline(&front);
     init_lstline(&back);
-    cpy_line(&node_p->line, &bestline);
-    execute_split(lines, &bestline, &front, &back, cuts);
-    node_p->side[0] = bspbuild(&front, point_closer2seg(bestline.p1, bestline.p2, pt), cuts);
-	node_p->side[1] = bspbuild(&back, point_closer2seg(bestline.p1, bestline.p2, pt), cuts);
+    cpy_line(&node_p->line, &bestline_p);
+    execute_split(lines, &bestline_p, &front, &back, cuts);
+    node_p->side[0] = bspbuild(&front, cuts);
+	node_p->side[1] = bspbuild(&back, cuts);
 
 	return (node_p);
 }
@@ -76,7 +90,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
     }
 }
 
-t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_vecf2 pl_pos)
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg)
 {
     t_lst_line  lines;
     int         cuts;
@@ -85,9 +99,9 @@ t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_vecf2 pl_pos)
     cuts = 0;
 
     make_seg(&lines, lst_p, nseg);
-    printf("pl (%f,%f)\n", pl_pos.x, pl_pos.y);
+    printf("ok\n");
     lines.count = nseg;
-    node = bspbuild(&lines, pl_pos, &cuts);
+    node = bspbuild(&lines, &cuts);
     printf("build ok\n");
     print_bsp(node);
     printf("print ok\n");
