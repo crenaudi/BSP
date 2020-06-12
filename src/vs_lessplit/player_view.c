@@ -1,4 +1,4 @@
-#include "../include/bsp.h"
+#include "../../include/bsp.h"
 
 t_bspnode *first_visible_node(t_bspnode *node, t_player *pl)
 {

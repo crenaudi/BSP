@@ -1,4 +1,4 @@
-#include "../include/bsp.h"
+#include "../../include/bsp.h"
 
 static t_polygon    info(t_vecf2 p1, t_vecf2 p2, int *n, int sided)
 {

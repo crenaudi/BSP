@@ -1,6 +1,5 @@
 #include "../include/bsp.h"
 
-
 float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
 {
     float dist1;
@@ -8,7 +7,6 @@ float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
 
     dist1 = sqrtf((pt.x - s1.x) * (pt.x - s1.x) + (pt.y - s1.y) * (pt.y - s1.y));
     dist2 = sqrtf((pt.x - s2.x) * (pt.x - s2.x) + (pt.y - s2.y) * (pt.y - s2.y));
-    printf("s1 = %f, s2 = %f\n", dist1, dist2);
     return ((dist1 < dist2) ? dist1 : dist2);
 }
 
@@ -37,13 +35,6 @@ t_line evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt)
     while (++i < lines->count)
     {
         line_p = lines->lst[i];
-        make_divlinefromworld(&dvl, &line_p);
-        if (pointonside(pt, &dvl) == -1)
-        {
-            printf("line %d colinear\n", line_p.linedef);
-            return (line_p);
-        }
-        printf("line %d ", line_p.linedef);
         dist = dist_seg2point(line_p.p1, line_p.p2, pt);
         if (dist < bestdist)
         {
@@ -98,7 +89,6 @@ t_line  cutline(t_line *wl, t_divline *dvl, int *cuts)
     t_vecf2     intersect;
     float       frac;
 
-
     *cuts += 1;
     make_divlinefromworld(&tmp, wl);
     bzero(&new, sizeof(t_line));
@@ -140,45 +130,46 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             && line_p.p2.x == spliton->p2.x && line_p.p2.y == spliton->p2.y))
         {
             side = lineonside(&line_p, &dvl);
+            printf("line %d %d ", line_p.linedef, side);
             if (side == 0)
             {
                 cpy_line(&frontlist->lst[frontlist->count], &line_p);
-                printf("front %d (%f,%f)(%f,%f)\n", frontlist->lst[frontlist->count].linedef,
+
+                printf("front (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
                     frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
+
                 frontlist->count += 1;
             }
             else if (side == 1)
             {
                 cpy_line(&backlist->lst[backlist->count], &line_p);
-                printf("back %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
+
+                printf("back (%f,%f)(%f,%f)\n",
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
                     backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
+
                 backlist->count += 1;
             }
             else if (side == -2)
             {
                 new_p = cutline(&line_p, &dvl, cuts);
                 cpy_line(&frontlist->lst[frontlist->count], &line_p);
-                printf("splited front %d (%f,%f)(%f,%f)\n", frontlist->lst[frontlist->count].linedef,
+
+                printf("splitfront (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
                     frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
+
                 frontlist->count += 1;
                 cpy_line(&backlist->lst[backlist->count], &new_p);
-                printf("spited back %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
+
+                printf("splitback %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
                     backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
+                    
                 backlist->count += 1;
             }
         }
     }
-    printf("front %d back %d\n", frontlist->count, backlist->count);
+    //printf("front %d back %d\n", frontlist->count, backlist->count);
 }
-/*
-printf("front %d (%f,%f)(%f,%f)\n", frontlist->lst[frontlist->count].linedef,
-    frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
-    frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
-    printf("back %d (%f,%f)(%f,%f)\n", backtlist->lst[backlist->count].linedef,
-        backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
-        backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
-    */

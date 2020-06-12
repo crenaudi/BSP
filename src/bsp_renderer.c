@@ -19,46 +19,36 @@ static float		onview(t_player *pl, float x, float y)
         return (ERROR);
 }
 
-static float		seg_onview(t_player *pl, t_vecf2 a, t_vecf2 b)
+static int		seg_onview(t_player *pl, t_line line)
 {
-    float   mdlx;
-	float   mdly;
-
-	if (onview(pl, a.x, a.y) != ERROR || onview(pl, b.x, b.y) != ERROR)
-		return (0);
-	mdlx = a.x + (b.x - a.x) / 2.;
-	mdly = a.y + (b.y - a.y) / 2.;
-	if (onview(pl, mdlx, mdly) != ERROR)
-		return (0);
-	return (-1);
+	if (onview(pl, line.p1.x, line.p1.y) != ERROR
+        || onview(pl, line.p2.x, line.p2.y) != ERROR
+        || onview(pl, line.bbox[0], line.bbox[2]) != ERROR
+        || onview(pl, line.bbox[1], line.bbox[3]) != ERROR)
+		return (SUCCESS);
+	return (ERROR);
 }
 
-void   render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl)
+static void   render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl)
 {
-    int side;
+    int first_side;
+    int second_side;
 
-	side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
-
-    if (air du polygon is visible)
-        plines->count++;
-        render_lstlines(plines, node[side], pl);
-
-
-    if (node->line.side == 0 && plines->count < 256 /* && node->side[0] == visible && none already in list*/)
+	first_side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
+    second_side = (first_side == 0) ? 1 : 0;
+    printf("node %d (%f,%f) (%f,%f)\n", node->line.linedef, node->line.p1.x,
+        node->line.p1.y, node->line.p2.x, node->line.p2.y);
+    if (node->line.side == 0 && plines->count < 256
+        && seg_onview(pl, node->line) == SUCCESS)
     {
-		plines->count++;
-        render_lstlines(plines, node->side[0], pl);
-    }
-	if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
         cpy_line(&plines->lst[plines->count], &node->line);
-
-    if (node->line.side == 0 && plines->count < 256 /* && node->side[1] == visible && none already in list*/)
-    {
+        printf("line %d (%f,%f) (%f,%f)\n", plines->lst[plines->count].linedef,
+			plines->lst[plines->count].p1.x, plines->lst[plines->count].p1.y,
+			plines->lst[plines->count].p2.x, plines->lst[plines->count].p2.y);
         plines->count++;
-        render_lstlines(plines, node->side[1], pl);
+        render_lstlines(plines, node->side[first_side], pl);
+        render_lstlines(plines, node->side[second_side], pl);
     }
-	if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
-        cpy_line(&plines->lst[plines->count], &node->line);
 }
 
 void    bsp_renderer(t_player *pl, t_bspnode *node)
@@ -71,7 +61,7 @@ void    bsp_renderer(t_player *pl, t_bspnode *node)
     //tmp = first_visible_node(pl, tmp);
     plines.count = 0;
     render_lstlines(&plines, tmp, pl);
-	printf("Printable lines :\n" );
+	printf("\nPrintable lines :\n\n" );
 	i = -1;
 	while (++i < plines.count)
 	{
@@ -80,19 +70,3 @@ void    bsp_renderer(t_player *pl, t_bspnode *node)
 			plines.lst[i].p2.x, plines.lst[i].p2.y);
 	}
 }
-
-/*
-t_bspnode   *first_visible_node(t_player *pl, t_bspnode *node)
-{
-	int side;
-
-    if (seg_onview(pl, node->line.p1, node->line.p2) != ERROR)
-		return (node);
-    else
-	{
-		side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
-		first_visible_node(pl, node->side[side]);
-	}
-	return (node);
-}
-*/

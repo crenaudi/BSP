@@ -1,4 +1,4 @@
-#include "../include/bsp.h"
+#include "../../include/bsp.h"
 
 int     evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade, int grade)
 {

@@ -8,7 +8,8 @@
 # include <limits.h>
 # include <strings.h>
 
-#define ERROR      -1
+# define SUCCESS		0
+# define ERROR			-1
 #define TWOSIDED   4
 #define MAXWALL    256
 #define MAXSPRITE  128
@@ -67,6 +68,8 @@ struct s_line
     int             offset;
     int             flags;//transparence ex
     int             sector;
+    float		    bbox[4];
+    float           angle;
     bool            grouped;//pour ne pas etre pris en compte deux fois
 };
 
@@ -84,9 +87,9 @@ struct s_bspnode
     - limites supérieure et inférieure de la coordonnée y
     - limites inférieure et supérieure de la coordonnée x (dans cet ordre).
     */
-	float				bbox[4];
     t_line              line;
     t_divline           divline;
+    float		        bbox[4];
     struct s_bspnode    *side[2];
 };
 
@@ -136,20 +139,21 @@ int         evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade,
     int grade);
 void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontlist,
     t_lst_line *backlist, int *cuts);
-//t_line     lresearch(t_lst_line *lines, int *bestv, int step);
-//void    lresearch(t_lst_line *lines, t_line *bestline, int *bestv, int step);
 void        cpy_line(t_line *dest, t_line *src);
-t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
-t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_vecf2 pl_pos);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
-t_bspnode   *first_visible_node(t_player *pl, t_bspnode *node);
 void        bsp_renderer(t_player *pl, t_bspnode *node);
-void        render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl);
+
+/*  CONDITIONNE PAR MINIMUM DE CUT   */
+//t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
+//t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
+
+/*  CONDITIONNE PAR PROXIMITE   */
+t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts);
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
+t_line      evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt);
 float       dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
 t_vecf2     point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
-t_line      evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt);
-float		cross2vecf(t_vecf2 a, t_vecf2 b);
 
 #endif

@@ -1,4 +1,4 @@
-#include "../include/bsp.h"
+#include "../../include/bsp.h"
 
 void cpy_line(t_line *dest, t_line *src)
 {
@@ -8,7 +8,29 @@ void cpy_line(t_line *dest, t_line *src)
     dest->offset = src->offset;
     dest->linedef = src->linedef;
     dest->grouped = src->grouped;
+    if (src->p1.x < src->p2.x)
+    {
+        dest->bbox[0] = src->p1.x;
+        dest->bbox[1] = src->p2.x;
+    }
+    else
+    {
+        dest->bbox[0] = src->p2.x;
+        dest->bbox[1] = src->p1.x;
+    }
+    if (src->p1.y > src->p2.y)
+    {
+        dest->bbox[2] = src->p1.y;
+        dest->bbox[3] = src->p2.y;
+    }
+    else
+    {
+        dest->bbox[2] = src->p2.y;
+        dest->bbox[3] = src->p1.y;
+    }
+    //left, right, top, bottom;
 }
+
 static void        init_lstline(t_lst_line *lines)
 {
     lines->count = 0;
