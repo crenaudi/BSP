@@ -52,8 +52,11 @@ struct s_line
 {
     t_vecf2         p1;
     t_vecf2         p2;
+    float           height;
+    float           ground;
     int             side;//bord de secteur 1
     int             linedef;
+
     /*
     offset  Size (bytes)
     0        2	     Partition line x coordinate
@@ -75,8 +78,8 @@ struct s_line
 
 struct s_lst_line
 {
-    t_line          lst[256];
     int             count;
+    t_line          lst[256];
 };
 
 struct s_bspnode
