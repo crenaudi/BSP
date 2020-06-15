@@ -1,4 +1,5 @@
-#include "../include/bsp.h"
+//#include "../include/bsp.h"
+#include "../include/bsp-v1.h"
 
 void print_bsp(t_bspnode *node)
 {

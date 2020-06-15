@@ -91,11 +91,9 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
             lines->lst[i].p2 = origine[i].p1;
             lines->lst[i].side = 1;
         }
-        /*
         printf("line %d (%f,%f)(%f,%f)\n", lines->lst[i].linedef,
             lines->lst[i].p1.x, lines->lst[i].p1.y,
             lines->lst[i].p2.x, lines->lst[i].p2.y);
-        */
     }
 }
 
@@ -105,39 +103,35 @@ static void   bsp_bbox(t_bspnode *node)
     node->bbox[1] = node->line.bbox[1];
     node->bbox[2] = node->line.bbox[2];
     node->bbox[3] = node->line.bbox[3];
-    printf("-> node %d bbox = %f %f %f %f\n", node->line.linedef, node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
+
     if (node->side[0] != NULL)
         bsp_bbox(node->side[0]);
-    printf("test side 0\n");
-    if (node->side[0] != NULL)
-    {
-        if (node->side[0]->line.bbox[0] < node->bbox[0])
-            node->bbox[0] = node->side[0]->line.bbox[0];
-
-        if (node->side[0]->line.bbox[1] > node->bbox[1])
-            node->bbox[1] = node->side[0]->line.bbox[1];
-
-        if (node->side[0]->line.bbox[2] > node->bbox[2])
-            node->bbox[2] = node->side[0]->line.bbox[2];
-
-        if (node->side[0]->line.bbox[3] < node->bbox[3])
-            node->bbox[2] = node->side[0]->line.bbox[3];
-        printf("node %d bbox = %f %f %f %f\n", node->line.linedef,
-            node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
-    }
     if (node->side[1]!= NULL)
         bsp_bbox(node->side[1]);
+    if (node->side[0] != NULL)
+    {
+        if (node->side[0]->bbox[0] < node->bbox[0])
+            node->bbox[0] = node->side[0]->bbox[0];
+        if (node->side[0]->bbox[1] > node->bbox[1])
+            node->bbox[1] = node->side[0]->bbox[1];
+        if (node->side[0]->bbox[2] > node->bbox[2])
+            node->bbox[2] = node->side[0]->bbox[2];
+        if (node->side[0]->bbox[3] < node->bbox[3])
+            node->bbox[3] = node->side[0]->bbox[3];
+        printf("SIDE 0 ---> node %d bbox = %f %f %f %f\n", node->line.linedef,
+            node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
+    }
     if (node->side[1]!= NULL)
     {
         if (node->side[1]->bbox[0] < node->bbox[0])
             node->bbox[0] = node->side[1]->bbox[0];
-        if (node->side[1]->line.bbox[1] > node->bbox[1])
+        if (node->side[1]->bbox[1] > node->bbox[1])
             node->bbox[1] = node->side[1]->bbox[1];
-        if (node->side[1]->line.bbox[2] > node->bbox[2])
+        if (node->side[1]->bbox[2] > node->bbox[2])
             node->bbox[2] = node->side[1]->bbox[2];
-        if (node->side[1]->line.bbox[3] < node->bbox[3])
-            node->bbox[2] = node->side[1]->bbox[3];
-        printf("node %d bbox = %f %f %f %f\n", node->line.linedef,
+        if (node->side[1]->bbox[3] < node->bbox[3])
+            node->bbox[3] = node->side[1]->bbox[3];
+        printf("SIDE 1 ---> node %d bbox = %f %f %f %f\n", node->line.linedef,
             node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
     }
 }
@@ -155,7 +149,8 @@ t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl)
     lines.count = nseg;
     node = bspbuild(&lines, (t_vecf2){pl->coord_x, pl->coord_y}, &cuts);
     bsp_bbox(node);
-    bsp_renderer(pl, node);
+    //bsp_renderer(pl, node);
+    ray_renderer(pl, node);
     close_bsp(node);
     printf("close ok\n");
     return (NULL);

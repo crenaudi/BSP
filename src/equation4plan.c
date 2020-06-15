@@ -1,4 +1,5 @@
-#include "../include/bsp.h"
+//#include "../include/bsp.h"
+#include "../include/bsp-v1.h"
 
 void    make_divlinefromworld(t_divline *dvl, t_line *l)
 {

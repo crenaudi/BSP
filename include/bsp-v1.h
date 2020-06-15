@@ -146,18 +146,8 @@ void        cpy_line(t_line *dest, t_line *src);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
-//void        bsp_renderer(t_player *pl, t_bspnode *node);
-
-/*  CONDITIONNE PAR MINIMUM DE CUT   */
-//t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
-//t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
-
-/*  CONDITIONNE PAR PROXIMITE   */
-t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts);
+t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
 t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
-t_line      evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt);
-float       dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
-t_vecf2     point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
+void        bsp_renderer(t_player *pl, t_bspnode *node);
 
-void        ray_renderer(t_player *pl, t_bspnode *node);
 #endif

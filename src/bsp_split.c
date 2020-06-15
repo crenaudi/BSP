@@ -1,4 +1,5 @@
-#include "../include/bsp.h"
+//#include "../include/bsp.h"
+#include "../include/bsp-v1.h"
 
 float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
 {
@@ -166,7 +167,7 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
                 printf("splitback %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
                     backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
-                    
+
                 backlist->count += 1;
             }
         }
