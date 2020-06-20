@@ -1,75 +1,115 @@
 #include "../include/bsp.h"
 
-static float		onview(t_player *pl, float x, float y)
+int		evaluate_pointonview(t_cam2d c, float x, float y)
 {
-    float   dx;
-    float   dy;
 	float 	angle;
+	float	dist;
+	t_vecf2	fvec;
 
-    printf("%f %f %f\n", pl->eyes_dir, x, y);
-    dx = sinf(pl->eyes_dir);
-   	dy = cosf(pl->eyes_dir);
-    angle = atan2f(dy, dx) - atan2f(y, x);
-    if (angle < -API)
-        angle += TWOPI;
-    if (angle > API)
-        angle -= TWOPI;
-    if (fabs(angle) < pl->cam.half_fov)
-        return (SUCCESS);
+	fvec.x = x - c.dvl.p.x;
+	fvec.y = y - c.dvl.p.y;
+	dist = sqrtf(fvec.x * fvec.x + fvec.y * fvec.y);
+    angle = atan2f(c.dvl.dy, c.dvl.dx) - atan2f(fvec.y, fvec.x);
+    if (angle < -3.14159f)
+        angle += 2 * 3.14159f;
+    if (angle > 3.14159f)
+        angle -= 2 * 3.14159f;
+	if (fabs(angle) < c.half_fov && dist >= 0.5f && dist < c.depth)
+		return (SUCCESS);
     else
         return (ERROR);
 }
 
-static int		seg_onview(t_player *pl, float bbox[4])
+int		seg_onview(t_cam2d c, t_line line)
 {
-	if (onview(pl, bbox[1], bbox[2]) != ERROR
-        || onview(pl, bbox[0], bbox[3]) != ERROR
-        || onview(pl, bbox[0], bbox[2]) != ERROR
-        || onview(pl, bbox[1], bbox[3]) != ERROR)
+	t_vecf2 far;
+	t_vecf2 x[2];
+	t_vecf2 y[2];
+
+	if (evaluate_pointonview(c, line.p1.x, line.p1.y) == SUCCESS)
+        return (SUCCESS);
+    if (evaluate_pointonview(c, line.p2.x, line.p2.y) == SUCCESS)
+        return (SUCCESS);
+	x[0] = c.dvl.p;
+	x[1].x = c.dvl.p.x + c.dvl.dx * c.depth;
+	x[1].y = c.dvl.p.y + c.dvl.dy * c.depth;
+	y[0] = line.p1;
+	y[1] = line.p2;
+	if (intersect_line(x, y, 0) == 1)
 		return (SUCCESS);
 	return (ERROR);
 }
 
-static void   render_lstlines(t_lst_line *plines, t_bspnode *node, t_player *pl)
+void walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines)
 {
     int side;
 
-    side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
-    printf("node %d bbox(%f,%f,%f,%f)\n", node->line.linedef, node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
-    if (plines->count < 256)
+    side = pointonside(c.dvl.p, &node->divline);
+    if (p_lines->count < 255)
+        if (node->side[side] != NULL)
+            walk_tree(node->side[side], c, p_lines);
+    if (seg_onview(c, node->line) == SUCCESS)
     {
-        if (seg_onview(pl, node->line.bbox) == SUCCESS)
-        {
-            printf("---> node onview %d bbox(%f,%f,%f,%f)\n", node->line.linedef, node->bbox[0], node->bbox[1], node->bbox[2], node->bbox[3]);
-            cpy_line(&plines->lst[plines->count], &node->line);
-            plines->count++;
-            if (node->line.side == 1)
-                side = 1;
-        }
-        if (node->side[side] !=  NULL )
-            render_lstlines(plines, node->side[side], pl);
-        if (node->side[side ^ 1] !=  NULL)
-            render_lstlines(plines, node->side[side ^ 1], pl);
+        printf("--> line %d is onview\n", node->line.linedef);
+		cpy_line(&p_lines->lst[p_lines->count], &node->line);
+        p_lines->count++;
     }
+    if (p_lines->count < 255)
+        if (node->side[side ^ 1] != NULL)
+            walk_tree(node->side[side ^ 1], c, p_lines);
 }
 
 void    bsp_renderer(t_player *pl, t_bspnode *node)
 {
-    t_lst_line  plines;
     t_bspnode   *tmp;
+	t_lst_line 	p_lines;
 	int			i;
 
 	tmp = node;
-    //tmp = first_visible_node(pl, tmp);
-    plines.count = 0;
-    printf("\nFind lines :\n\n" );
-    render_lstlines(&plines, tmp, pl);
-	printf("\nPrintable lines :\n\n" );
+    pl->cam.dvl.p = (t_vecf2){pl->coord_x, pl->coord_x};
+    pl->cam.dvl.dx = sinf(pl->eyes_dir);
+    pl->cam.dvl.dy = cosf(pl->eyes_dir);
+	bzero(&p_lines, sizeof(t_lst_line));
+    walk_tree(tmp, pl->cam, &p_lines);
 	i = -1;
-	while (++i < plines.count)
-	{
-		printf("line %d (%f,%f) (%f,%f)\n", plines.lst[i].linedef,
-			plines.lst[i].p1.x, plines.lst[i].p1.y,
-			plines.lst[i].p2.x, plines.lst[i].p2.y);
-	}
+	printf("PRINTABLE LINES\n");
+	while (++i < p_lines.count)
+		printf("line %d : %f,%f - %f,%f\n", p_lines.lst[i].linedef, p_lines.lst[i].p1.x,
+			p_lines.lst[i].p1.y, p_lines.lst[i].p2.x, p_lines.lst[i].p2.y);
 }
+
+/*
+void WalkTree(t_bspnode *node)
+{
+   t_bspnode *nodestack[256];
+   t_bspnode **ptr_nodestack;
+   int side;
+
+   // Make sure the tree isn’t empty
+   if (node != NULL)
+   {
+      nodestack[0] = NULL;
+      ptr_nodeStack = nodestack + 1;
+      for (;;)
+      {
+         while (node[side] != NULL)
+         {
+            side = pointonside((t_vecf2){pl->coord_x, pl->coord_y}, &node->divline);
+            *ptr_nodeStack++ = node;
+            node = node[side];
+         }
+         //node est donc le point le plus proche devant
+         for (;;)
+         {
+            Visit(node);
+            if (node[side ^ 1] != NULL)
+            {
+               node = node[side ^ 1];
+               break;
+            }
+            if ((node = * —nodeStack) == NULL)
+               return;
+         }
+      }
+   }
+}*/

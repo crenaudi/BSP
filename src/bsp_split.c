@@ -1,52 +1,6 @@
-//#include "../include/bsp.h"
-#include "../include/bsp-v1.h"
+#include "../include/bsp.h"
 
-float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
-{
-    float dist1;
-    float dist2;
-
-    dist1 = sqrtf((pt.x - s1.x) * (pt.x - s1.x) + (pt.y - s1.y) * (pt.y - s1.y));
-    dist2 = sqrtf((pt.x - s2.x) * (pt.x - s2.x) + (pt.y - s2.y) * (pt.y - s2.y));
-    return ((dist1 < dist2) ? dist1 : dist2);
-}
-
-t_vecf2   point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
-{
-    float dist1;
-    float dist2;
-
-    dist1 = sqrtf((pt.x - s1.x) + (pt.y - s1.y));
-    dist2 = sqrtf((pt.x - s2.x) + (pt.y - s2.y));
-    return ((dist1 < dist2) ? s1 : s2);
-}
-
-t_line evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt)
-{
-    t_divline   dvl;
-    t_line      line_p;
-    t_line      bestline;
-    int         i;
-    int         dist;
-
-    if (lines->count < 2)
-        return (lines->lst[0]);
-    bestline = lines->lst[0];
-    i = -1;
-    while (++i < lines->count)
-    {
-        line_p = lines->lst[i];
-        dist = dist_seg2point(line_p.p1, line_p.p2, pt);
-        if (dist < bestdist)
-        {
-            bestdist = dist;
-            bestline = line_p;
-        }
-    }
-    return (bestline);
-}
-
-int     evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade, int grade)
+int     evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade, int grade)
 {
     t_divline   dvl;
     t_line      line_p;
@@ -57,32 +11,26 @@ int     evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade, int gr
     nfront = 0;
     nback = 0;
     info[0] = -1;
-    make_divlinefromworld(&dvl, spliton);
+    make_divlinefromworld(&dvl, splt);
     while (++info[0] < lines->count)
     {
         line_p = lines->lst[info[0]];
-        if (&line_p == spliton)
-            info[1] = 0;
-        else
-            info[1] = lineonside(&line_p, &dvl);
+        info[1] = (&line_p == splt)? 0 : lineonside(&line_p, &dvl);
         if (info[1] == 0)
             nfront++;
         if (info[1] == 1)
             nback++;
-        if (info[1] == -2)
-        {
-            nfront++;
+        if (info[1] == -2 && nfront++)
             nback++;
-        }
         info[2] = (nfront + nback) - lines->count;
-        grade = (((nfront > nback) ? nfront : nback) + info[2]) * 8;
+        grade = (((nfront > nback) ? nfront : nback) + info[2] * 8);
         if (grade > bestgrade)
             return (grade);
     }
     return ((nfront == 0 || nback == 0) ? INT_MAX : grade);
 }
 
-t_line  cutline(t_line *wl, t_divline *dvl, int *cuts)
+t_line  cutline(t_line *wl, t_divline *dvl)
 {
     t_line      new;
     t_divline   tmp;
@@ -90,11 +38,10 @@ t_line  cutline(t_line *wl, t_divline *dvl, int *cuts)
     t_vecf2     intersect;
     float       frac;
 
-    *cuts += 1;
     make_divlinefromworld(&tmp, wl);
     bzero(&new, sizeof(t_line));
     new = *wl;
-    frac = intersectvector(&tmp, dvl); // if == 0 printf("error intersect : vector are parallel or outside line");
+    frac = intersect_vector(&tmp, dvl); // if == 0 printf("error intersect : vector are parallel or outside line");
     intersect.x = tmp.p.x + float_round(tmp.dx * frac);
     intersect.y = tmp.p.y + float_round(tmp.dy * frac);
     offset = wl->offset + roundf(frac * norm_plan(&tmp));
@@ -154,7 +101,8 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             }
             else if (side == -2)
             {
-                new_p = cutline(&line_p, &dvl, cuts);
+                new_p = cutline(&line_p, &dvl);
+                *cuts += 1;
                 cpy_line(&frontlist->lst[frontlist->count], &line_p);
 
                 printf("splitfront (%f,%f)(%f,%f)\n",

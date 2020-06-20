@@ -1,4 +1,51 @@
-#include "../include/bsp-v1.h"
+#include "../include/bsp.h"
+
+/*
+float   dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
+{
+    float dist1;
+    float dist2;
+
+    dist1 = sqrtf((pt.x - s1.x) * (pt.x - s1.x) + (pt.y - s1.y) * (pt.y - s1.y));
+    dist2 = sqrtf((pt.x - s2.x) * (pt.x - s2.x) + (pt.y - s2.y) * (pt.y - s2.y));
+    return ((dist1 < dist2) ? dist1 : dist2);
+}
+
+t_vecf2   point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt)
+{
+    float dist1;
+    float dist2;
+
+    dist1 = sqrtf((pt.x - s1.x) + (pt.y - s1.y));
+    dist2 = sqrtf((pt.x - s2.x) + (pt.y - s2.y));
+    return ((dist1 < dist2) ? s1 : s2);
+}
+
+t_line evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt)
+{
+    t_divline   dvl;
+    t_line      line_p;
+    t_line      bestline;
+    int         i;
+    int         dist;
+
+    if (lines->count < 2)
+        return (lines->lst[0]);
+    bestline = lines->lst[0];
+    i = -1;
+    while (++i < lines->count)
+    {
+        line_p = lines->lst[i];
+        dist = dist_seg2point(line_p.p1, line_p.p2, pt);
+        if (dist < bestdist)
+        {
+            bestdist = dist;
+            bestline = line_p;
+        }
+    }
+    return (bestline);
+}
+*/
 
 void cpy_line(t_line *dest, t_line *src)
 {
@@ -37,48 +84,35 @@ static void        init_lstline(t_lst_line *lines)
     memset(&lines->lst, 256, sizeof(t_line));
 }
 
-t_bspnode   *bspbuild(t_lst_line *lines, int *cuts)
+t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts)
 {
-    t_line      line_p;
-    t_line      bestline_p;
+    t_line      bestline;
     t_lst_line  front;
     t_lst_line  back;
-    int         v[2];
     t_bspnode   *node_p;
     int         i;
 
-    v[1] = INT_MAX;
-    i = -1;
     if (lines->count == 0)
         return (NULL);
-    bestline_p = lines->lst[0];
-    while (++i < lines->count)
-    {
-        line_p = lines->lst[i];
-        v[0] = evaluate_split(lines, &line_p, v[1], 0);
-        if (v[0] < v[1])
-        {
-            v[1] = v[0];
-            bestline_p = line_p;
-        }
-    }
-    printf("\nbestline_p %d (%f,%f)(%f,%f)\n\n", bestline_p.linedef,
-        bestline_p.p1.x, bestline_p.p1.y, bestline_p.p2.x, bestline_p.p2.y);
+    bestline = evaluate_closer(lines, INT_MAX, pt);
+
+    printf("\nbestline_p %d (%f,%f)(%f,%f)\n\n", bestline.linedef,
+        bestline.p1.x, bestline.p1.y, bestline.p2.x, bestline.p2.y);
+
     node_p = malloc (sizeof(*node_p));
 	memset (node_p, 0, sizeof(*node_p));
-    if (v[1] == INT_MAX && lines->count < 2)
+    if (lines->count < 2)
     {
-        cpy_line(&node_p->line, &line_p);
+        cpy_line(&node_p->line, &bestline);
         return(node_p);
     }
-    make_divlinefromworld(&node_p->divline, &bestline_p);
+    make_divlinefromworld(&node_p->divline, &bestline);
     init_lstline(&front);
     init_lstline(&back);
-    cpy_line(&node_p->line, &bestline_p);
-    execute_split(lines, &bestline_p, &front, &back, cuts);
-    node_p->side[0] = bspbuild(&front, cuts);
-	node_p->side[1] = bspbuild(&back, cuts);
-
+    cpy_line(&node_p->line, &bestline);
+    execute_split(lines, &bestline, &front, &back, cuts);
+    node_p->side[0] = bspbuild(&front, point_closer2seg(bestline.p1, bestline.p2, pt), cuts);
+	node_p->side[1] = bspbuild(&back, point_closer2seg(bestline.p1, bestline.p2, pt), cuts);
 	return (node_p);
 }
 
@@ -158,10 +192,12 @@ t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl)
     cuts = 0;
 
     make_seg(&lines, lst_p, nseg);
+    printf("pl (%f,%f)\n", pl->coord_x, pl->coord_y);
     lines.count = nseg;
-    node = bspbuild(&lines, &cuts);
+    node = bspbuild(&lines, (t_vecf2){pl->coord_x, pl->coord_y}, &cuts);
     bsp_bbox(node);
-    bsp_renderer(pl, node);
+    //bsp_renderer(pl, node);
+    ray_renderer(pl, node);
     close_bsp(node);
     printf("close ok\n");
     return (NULL);

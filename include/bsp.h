@@ -1,5 +1,5 @@
-#ifndef TEST_H
-#define TEST_H
+#ifndef BSP_H
+#define BSP_H
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -18,7 +18,12 @@
 # define API_34		2.3561945
 # define TWOPI		6.2831854
 
-typedef float			    t_vecf2 __attribute__((ext_vector_type(2)));
+#define BOXLEFT     0
+#define BOXRIGHT    1
+#define BOXTOP      2
+#define BOXBOTTOM   3
+
+typedef float				t_vecf2 __attribute__((ext_vector_type(2)));
 typedef unsigned char		t_u16;
 typedef struct s_map        t_map;
 typedef struct s_sector     t_sector;
@@ -33,8 +38,8 @@ typedef struct s_player     t_player;
 struct s_polygon
 {
     int         n;
-    t_vecf2     p1;
-    t_vecf2     p2;
+    t_vecf2      p1;
+    t_vecf2      p2;
     int         high;
     int         mod;
     int         flags;//backside will not be present at all if not two sided
@@ -43,9 +48,9 @@ struct s_polygon
 
 struct s_divline
 {
-    t_vecf2     p;
-    float       dx;
-    float       dy;
+    t_vecf2      p;
+    float        dx;
+    float        dy;
 };
 
 struct s_line
@@ -54,9 +59,8 @@ struct s_line
     t_vecf2         p2;
     float           height;
     float           ground;
-    int             side;//bord de secteur 1
-    int             linedef;
-
+    int            side;//bord de secteur 1
+    int            linedef;
     /*
     offset  Size (bytes)
     0        2	     Partition line x coordinate
@@ -68,11 +72,12 @@ struct s_line
     24	     2	     Right child
     26	     2       Left child
     */
-    int             offset;
+    float           offset;
     int             flags;//transparence ex
     int             sector;
-    float		    bbox[4];
-    float           angle;
+    float   	    bbox[4];
+    float           angle1;
+    float           angle2;
     bool            grouped;//pour ne pas etre pris en compte deux fois
 };
 
@@ -84,22 +89,16 @@ struct s_lst_line
 
 struct s_bspnode
 {
-    /*
-    boundary box
-    bbox se compose de quatre valeurs courtes (haut, bas, gauche et droite)
-    - limites supérieure et inférieure de la coordonnée y
-    - limites inférieure et supérieure de la coordonnée x (dans cet ordre).
-    */
     t_line              line;
     t_divline           divline;
-    float		        bbox[4];
+    float 		        bbox[4];
     struct s_bspnode    *side[2];
 };
 
 struct s_sector
 {
-    int         h_ceil;
-    int         h_floor;
+    float      h_ceil;
+    float       h_floor;
     //t_obj       obj[];//128 max
     //t_texture   *wall;
     //t_texture   *ceil;
@@ -117,17 +116,67 @@ struct					s_cam2d
 {
 	float		fov;
 	float		half_fov;
-	t_vecf2		dir;
+    float       clipangle;
+    float       depth;
+    t_divline   dvl;
+    /*
+    t_divline   near;
+    t_divline   far;
+    t_divline   right;
+    t_divline   left;
+    */
 };
 
 struct			s_player
 {
     t_cam2d		cam;
-	float		coord_x;
-	float		coord_y;
+	float	    coord_x;
+	float	    coord_y;
 	float		eyes_dir;
 };
 
+/*******************************************************************************
+    MATH FUNCTION
+*******************************************************************************/
+
+float       equation_plan(t_divline *v1, t_divline *v2);
+float       cross_plan(t_divline *v1, t_divline *v2);
+float       norm_plan(t_divline *v);
+int         seg_onview(t_cam2d c, t_line line);
+void        make_divlinefromworld(t_divline *dvl, t_line *l);
+int         sign(float i);
+float       float_round(float x);
+
+int         pointonside(t_vecf2 pt, t_divline *dvl);
+int         lineonside(t_line *l, t_divline *dvl);
+int         evaluate_pointonview(t_cam2d c, float x, float y);
+int         seg_onview(t_cam2d c, t_line line);
+
+float       intersect_vector(t_divline *v1, t_divline *v2);
+int         intersect_line(t_vecf2 x[2], t_vecf2 y[2], float tol);
+
+/*******************************************************************************
+    BUILD FUNCTION
+*******************************************************************************/
+
+t_line      cutline(t_line *wl, t_divline *dvl);
+int         evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade,
+    int grade);
+void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontlist,
+    t_lst_line *backlist, int *cuts);
+void        cpy_line(t_line *dest, t_line *src);
+void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
+
+void        clearbox(float box[4]);
+void        addtobox(float box[4], float x, float y);
+
+t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
+t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
+void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines);
+void        bsp_renderer(t_player *pl, t_bspnode *node);
+void        close_bsp(t_bspnode *node);
+
+/* V1
 void        make_divlinefromworld(t_divline *dvl, t_line *l);
 float       equation_plan(t_divline *v1, t_divline *v2);
 float       cross_plan(t_divline *v1, t_divline *v2);
@@ -146,18 +195,11 @@ void        cpy_line(t_line *dest, t_line *src);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);
-//void        bsp_renderer(t_player *pl, t_bspnode *node);
-
-/*  CONDITIONNE PAR MINIMUM DE CUT   */
-//t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
-//t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg);
-
-/*  CONDITIONNE PAR PROXIMITE   */
 t_bspnode   *bspbuild(t_lst_line *lines, t_vecf2 pt, int *cuts);
 t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
 t_line      evaluate_closer(t_lst_line *lines, int bestdist, t_vecf2 pt);
 float       dist_seg2point(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
 t_vecf2     point_closer2seg(t_vecf2 s1, t_vecf2 s2, t_vecf2 pt);
-
 void        ray_renderer(t_player *pl, t_bspnode *node);
+*/
 #endif

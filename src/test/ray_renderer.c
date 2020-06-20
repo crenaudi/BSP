@@ -1,5 +1,4 @@
 #include "../include/bsp.h"
-#include "../include/bsp-v1.h"
 
 static float		onview(t_player *pl, float x, float y)
 {

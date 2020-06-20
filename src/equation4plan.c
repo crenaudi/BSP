@@ -1,5 +1,4 @@
-//#include "../include/bsp.h"
-#include "../include/bsp-v1.h"
+#include "../include/bsp.h"
 
 void    make_divlinefromworld(t_divline *dvl, t_line *l)
 {
@@ -23,7 +22,7 @@ float    norm_plan(t_divline *v)
     return (sqrt(v->dx * v->dx + v->dy * v->dy));
 }
 
-float 	intersectvector(t_divline *v2, t_divline *v1)
+float 	intersect_vector(t_divline *v2, t_divline *v1)
 {
     float	frac;
 	float	cross;

@@ -1,5 +1,4 @@
-//#include "../include/bsp.h"
-#include "../include/bsp-v1.h"
+#include "../include/bsp.h"
 
 int     sign(float i)
 {
@@ -28,40 +27,50 @@ float     float_round(float x)
 	return (x);
 }
 
+static int     pointonside_suite(t_vecf2 pt, t_divline *dvl)
+{
+    float   dx;
+    float   dy;
+	float	check[4];
+
+	//equation de plan :
+    dx = dvl->p.x - pt.x;
+    dy = dvl->p.y - pt.y;
+
+	check[0] = dvl->dx * dvl->dx + dvl->dy * dvl->dy;
+	check[1] = 2 * (dvl->dx * dx + dvl->dy * dy);
+	check[2] = dx * dx + dy * dy - 2 * 2;		// 2 unit radius
+	check[3] = check[1] * check[1] - 4 * check[0] * check[2];
+	if (check[3] > 0)
+		return (ERROR);
+	return (SUCCESS);
+}
+
 int     pointonside(t_vecf2 pt, t_divline *dvl)
 {
     float   dx;
     float   dy;
     float   left;
     float   right;
-    float   a;
-    float   b;
-    float   c;
-    float   d;
 
     if (!dvl->dx) //seg aligné en x
     {
         if (pt.x > dvl->p.x - 2 && pt.x < dvl->p.x + 2)
             return (-1); //colinear
-        return ((pt.x < dvl->p.x) ? dvl->dy > 0 : dvl->dy < 0);
-        //vrai 1 back
-        //false 0 front
+        return ((pt.x < dvl->p.x) ? dvl->dy > 0 : dvl->dy < 0);//vrai 1 back //false 0 front
     }
     if (!dvl->dy) //seg aligné en y
     {
         if (pt.y > dvl->p.y - 2 && pt.y < dvl->p.y + 2)
             return (-1); //colinear
-        return ((pt.y < dvl->p.y) ? dvl->dx < 0 : dvl->dx > 0);
-        //vrai 1 back
-        //false 0 front
+        return ((pt.y < dvl->p.y) ? dvl->dx < 0 : dvl->dx > 0);//vrai 1 back//false 0 front
     }
-
-    //equation de plan :
-    dx = pt.x - dvl->p.x;
-    dy = pt.y - dvl->p.y;
+	if (pointonside_suite(pt, dvl) == ERROR)
+		return (-1);
+	dx = pt.x - dvl->p.x;
+	dy = pt.y - dvl->p.y;
     left = dvl->dy * dx;
     right = dy * dvl->dx;
-
     if (fabs(left - right) < 0.5)
         return (-1); //on line
     return ((right < left) ? 0 /* front */ : 1 /* back */);
@@ -73,8 +82,7 @@ int lineonside(t_line *l, t_divline *dvl)
     int     s2;
 
     s1 = pointonside(l->p1, dvl);
-    s2 = pointonside(l->p2, dvl);
-    // 0 front 1 back -1 colinear / on line
+    s2 = pointonside(l->p2, dvl); // 0 front 1 back -1 colinear / on line
     if (s1 == s2) // tous les deux front ou back ou colinéaire
     {
         if (s1 == -1) // s1 colinear

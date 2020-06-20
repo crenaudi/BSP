@@ -1,5 +1,4 @@
-//#include "../include/bsp.h"
-#include "../include/bsp-v1.h"
+#include "../include/bsp.h"
 
 void close_bsp(t_bspnode *node)
 {
@@ -12,20 +11,3 @@ void close_bsp(t_bspnode *node)
         free(node);
     }
 }
-
-/*
-void close_bsp(t_bspnode *node)
-{
-    if (!node)
-    {
-        if (node->side[0] == NULL && node->side[1] == NULL)
-        {
-            bzero(node, sizeof(t_bspnode));
-            free(node);
-        }
-        else
-            (node->side[0] == NULL) ? close_bsp(node->side[1])
-            : close_bsp(node->side[0]);
-    }
-}
-*/
