@@ -51,7 +51,7 @@ void walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines)
     if (seg_onview(c, node->line) == SUCCESS)
     {
         printf("--> line %d is onview\n", node->line.linedef);
-		cpy_line(&p_lines->lst[p_lines->count], &node->line);
+		cpyl(&p_lines->lst[p_lines->count], &node->line);
         p_lines->count++;
     }
     if (p_lines->count < 255)

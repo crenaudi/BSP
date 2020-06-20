@@ -156,21 +156,29 @@ float       intersect_vector(t_divline *v1, t_divline *v2);
 int         intersect_line(t_vecf2 x[2], t_vecf2 y[2], float tol);
 
 /*******************************************************************************
+    INIT FUNCTION
+*******************************************************************************/
+
+void        init_lstline(t_lst_line *lines);
+void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2);
+t_bspnode   *init_node();
+
+/*******************************************************************************
     BUILD FUNCTION
 *******************************************************************************/
 
 t_line      cutline(t_line *wl, t_divline *dvl);
 int         evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade,
     int grade);
-void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontlist,
-    t_lst_line *backlist, int *cuts);
-void        cpy_line(t_line *dest, t_line *src);
+    void    execute_split(t_lst_line *lines, t_line *spliton,
+        t_lst_line *frontlist, t_lst_line *backlist);
+void        cpyl(t_line *dest, t_line *src);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
 
 void        clearbox(float box[4]);
 void        addtobox(float box[4], float x, float y);
 
-t_bspnode   *bspbuild(t_lst_line *lines, int *cuts);
+t_bspnode   *bspbuild(t_lst_line *lines);
 t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
 void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines);
 void        bsp_renderer(t_player *pl, t_bspnode *node);
@@ -191,7 +199,7 @@ int         evaluate_split(t_lst_line *lines, t_line *spliton, int bestgrade,
     int grade);
 void        execute_split(t_lst_line *lines, t_line *spliton, t_lst_line *frontlist,
     t_lst_line *backlist, int *cuts);
-void        cpy_line(t_line *dest, t_line *src);
+void        cpyl(t_line *dest, t_line *src);
 void        make_seg(t_lst_line *lines, t_polygon origine[256], int nseg);
 void        close_bsp(t_bspnode *node);
 void        print_bsp(t_bspnode *bsp);

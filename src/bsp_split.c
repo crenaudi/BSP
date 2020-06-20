@@ -61,7 +61,7 @@ t_line  cutline(t_line *wl, t_divline *dvl)
 }
 
 void    execute_split(t_lst_line *lines, t_line *spliton,
-    t_lst_line *frontlist, t_lst_line *backlist, int *cuts)
+    t_lst_line *frontlist, t_lst_line *backlist)
 {
     int         i;
     int         side;
@@ -81,7 +81,7 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             printf("line %d %d ", line_p.linedef, side);
             if (side == 0)
             {
-                cpy_line(&frontlist->lst[frontlist->count], &line_p);
+                cpyl(&frontlist->lst[frontlist->count], &line_p);
 
                 printf("front (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
@@ -91,7 +91,7 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             }
             else if (side == 1)
             {
-                cpy_line(&backlist->lst[backlist->count], &line_p);
+                cpyl(&backlist->lst[backlist->count], &line_p);
 
                 printf("back (%f,%f)(%f,%f)\n",
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
@@ -102,15 +102,14 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             else if (side == -2)
             {
                 new_p = cutline(&line_p, &dvl);
-                *cuts += 1;
-                cpy_line(&frontlist->lst[frontlist->count], &line_p);
+                cpyl(&frontlist->lst[frontlist->count], &line_p);
 
                 printf("splitfront (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
                     frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
 
                 frontlist->count += 1;
-                cpy_line(&backlist->lst[backlist->count], &new_p);
+                cpyl(&backlist->lst[backlist->count], &new_p);
 
                 printf("splitback %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
