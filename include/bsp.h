@@ -24,6 +24,7 @@
 #define BOXBOTTOM   3
 
 typedef float				t_vecf2 __attribute__((ext_vector_type(2)));
+typedef float				t_vecf3 __attribute__((ext_vector_type(3)));
 typedef unsigned char		t_u16;
 typedef struct s_map        t_map;
 typedef struct s_sector     t_sector;
@@ -38,9 +39,8 @@ typedef struct s_player     t_player;
 struct s_polygon
 {
     int         n;
-    t_vecf2      p1;
-    t_vecf2      p2;
-    int         high;
+    t_vecf3     p1;
+    t_vecf3     p2;
     int         mod;
     int         flags;//backside will not be present at all if not two sided
     int         sector;
@@ -48,19 +48,18 @@ struct s_polygon
 
 struct s_divline
 {
-    t_vecf2      p;
+    t_vecf3      p;
     float        dx;
     float        dy;
 };
 
 struct s_line
 {
-    t_vecf2         p1;
-    t_vecf2         p2;
-    float           height;
+    t_vecf3         p1;
+    t_vecf3         p2;
     float           ground;
-    int            side;//bord de secteur 1
-    int            linedef;
+    int             side;//bord de secteur 1
+    int             linedef;
     /*
     offset  Size (bytes)
     0        2	     Partition line x coordinate
@@ -129,10 +128,13 @@ struct					s_cam2d
 
 struct			s_player
 {
-    t_cam2d		cam;
 	float	    coord_x;
 	float	    coord_y;
-	float		eyes_dir;
+	float		eyes_dirx;
+    float       eyes_diry;
+    int         eyes_height;
+    int         height;
+    t_cam2d		cam;
 };
 
 /*******************************************************************************
@@ -147,9 +149,9 @@ void        make_divlinefromworld(t_divline *dvl, t_line *l);
 int         sign(float i);
 float       float_round(float x);
 
-int         pointonside(t_vecf2 pt, t_divline *dvl);
+int         pointonside(t_vecf3 pt, t_divline *dvl);
 int         lineonside(t_line *l, t_divline *dvl);
-int         evaluate_pointonview(t_cam2d c, float x, float y);
+float		evaluate_pointonview(t_cam2d c, float x, float y);
 int         seg_onview(t_cam2d c, t_line line);
 
 float       intersect_vector(t_divline *v1, t_divline *v2);
@@ -162,6 +164,7 @@ int         intersect_line(t_vecf2 x[2], t_vecf2 y[2], float tol);
 void        init_lstline(t_lst_line *lines);
 void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2);
 t_bspnode   *init_node();
+void        precompute(t_lst_line *lst, t_player *pl);
 
 /*******************************************************************************
     BUILD FUNCTION

@@ -27,7 +27,7 @@ float     float_round(float x)
 	return (x);
 }
 
-static int     pointonside_suite(t_vecf2 pt, t_divline *dvl)
+static int     pointonside_suite(t_vecf3 pt, t_divline *dvl)
 {
     float   dx;
     float   dy;
@@ -46,7 +46,7 @@ static int     pointonside_suite(t_vecf2 pt, t_divline *dvl)
 	return (SUCCESS);
 }
 
-int     pointonside(t_vecf2 pt, t_divline *dvl)
+int     pointonside(t_vecf3 pt, t_divline *dvl)
 {
     float   dx;
     float   dy;

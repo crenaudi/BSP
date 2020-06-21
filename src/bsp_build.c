@@ -7,26 +7,12 @@ void cpyl(t_line *dest, t_line *src)
     dest->side = src->side;
     dest->offset = src->offset;
     dest->linedef = src->linedef;
-    if (src->p1.x < src->p2.x)
-    {
-        dest->bbox[BOXLEFT] = src->p1.x;
-        dest->bbox[BOXRIGHT] = src->p2.x;
-    }
-    else
-    {
-        dest->bbox[BOXLEFT] = src->p2.x;
-        dest->bbox[BOXRIGHT] = src->p1.x;
-    }
-    if (src->p1.y > src->p2.y)
-    {
-        dest->bbox[BOXBOTTOM] = src->p1.y;
-        dest->bbox[BOXTOP] = src->p2.y;
-    }
-    else
-    {
-        dest->bbox[BOXBOTTOM] = src->p2.y;
-        dest->bbox[BOXTOP] = src->p1.y;
-    }
+    dest->angle1 = src->angle1;
+    dest->angle2 = src->angle2;
+    dest->bbox[BOXLEFT] = (src->p1.x < src->p2.x) ? src->p1.x : src->p2.x;
+    dest->bbox[BOXRIGHT] = (src->p1.x < src->p2.x) ? src->p2.x : src->p1.x;
+    dest->bbox[BOXBOTTOM] = (src->p1.y > src->p2.y) ? src->p1.y : src->p2.y;
+    dest->bbox[BOXTOP] = (src->p1.y > src->p2.y) ? src->p2.y : src->p1.y;
 }
 
 t_bspnode   *bspbuild(t_lst_line *lines)

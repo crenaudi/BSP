@@ -43,12 +43,11 @@ void CohenSutherlandLineClipAndDraw(double x0, double y0, double x1, double y1)
 
 	while (true) {
 		if (!(outcode0 | outcode1)) {
-			// bitwise OR is 0: both points inside window; trivially accept and exit loop
+			// = 0000 segment entierement dans frustrum
 			accept = true;
 			break;
 		} else if (outcode0 & outcode1) {
-			// bitwise AND is not 0: both points share an outside zone (LEFT, RIGHT, TOP,
-			// or BOTTOM), so both must be outside window; exit loop (accept is false)
+			// != 0000 les deux points sont d'un meme cote a l'exterieur du frustrum
 			break;
 		} else {
 			// failed both tests, so calculate the line segment to clip

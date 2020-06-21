@@ -35,7 +35,7 @@ t_line  cutline(t_line *wl, t_divline *dvl)
     t_line      new;
     t_divline   tmp;
     int         offset;
-    t_vecf2     intersect;
+    t_vecf3     intersect;
     float       frac;
 
     make_divlinefromworld(&tmp, wl);
@@ -44,6 +44,7 @@ t_line  cutline(t_line *wl, t_divline *dvl)
     frac = intersect_vector(&tmp, dvl); // if == 0 printf("error intersect : vector are parallel or outside line");
     intersect.x = tmp.p.x + float_round(tmp.dx * frac);
     intersect.y = tmp.p.y + float_round(tmp.dy * frac);
+    intersect.y = tmp.p.z;
     offset = wl->offset + roundf(frac * norm_plan(&tmp));
     if (pointonside(wl->p1, dvl) == 0)
     { //front
