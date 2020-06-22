@@ -74,7 +74,7 @@ struct s_line
     float           offset;
     int             flags;//transparence ex
     int             sector;
-    float   	    bbox[4];
+    //float   	    bbox[4];
     float           angle1;
     float           angle2;
     bool            grouped;//pour ne pas etre pris en compte deux fois
@@ -90,13 +90,12 @@ struct s_bspnode
 {
     t_line              line;
     t_divline           divline;
-    float 		        bbox[4];
     struct s_bspnode    *side[2];
 };
 
 struct s_sector
 {
-    float      h_ceil;
+    float       h_ceil;
     float       h_floor;
     //t_obj       obj[];//128 max
     //t_texture   *wall;
@@ -117,19 +116,16 @@ struct					s_cam2d
 	float		half_fov;
     float       clipangle;
     float       depth;
-    t_divline   dvl;
-    /*
-    t_divline   near;
-    t_divline   far;
-    t_divline   right;
-    t_divline   left;
-    */
+    t_vecf2     depthright;
+    t_vecf2     depthleft;
+    t_divline   dvl_lr;
+    t_divline   dvl_fb;
 };
 
 struct			s_player
 {
-	float	    coord_x;
-	float	    coord_y;
+	float	    x;
+	float	    y;
 	float		eyes_dirx;
     float       eyes_diry;
     int         eyes_height;
@@ -144,7 +140,6 @@ struct			s_player
 float       equation_plan(t_divline *v1, t_divline *v2);
 float       cross_plan(t_divline *v1, t_divline *v2);
 float       norm_plan(t_divline *v);
-int         seg_onview(t_cam2d c, t_line line);
 void        make_divlinefromworld(t_divline *dvl, t_line *l);
 int         sign(float i);
 float       float_round(float x);
@@ -152,19 +147,21 @@ float       float_round(float x);
 int         pointonside(t_vecf3 pt, t_divline *dvl);
 int         lineonside(t_line *l, t_divline *dvl);
 float		evaluate_pointonview(t_cam2d c, float x, float y);
-int         seg_onview(t_cam2d c, t_line line);
+int         seg_onview(t_cam2d c, t_line line, t_vecf2 depth);
 
 float       intersect_vector(t_divline *v1, t_divline *v2);
-int         intersect_line(t_vecf2 x[2], t_vecf2 y[2], float tol);
+int         evaluate_intersectline(t_vecf2 x[2], t_vecf2 y[2], float tol);
 
 /*******************************************************************************
     INIT FUNCTION
 *******************************************************************************/
 
+t_cam2d		init_cam2d(t_player *pl);
+void		update_cam2d(t_cam2d *c, t_player *pl);
 void        init_lstline(t_lst_line *lines);
 void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2);
 t_bspnode   *init_node();
-void        precompute(t_lst_line *lst, t_player *pl);
+void        precompute(t_lst_line *lstlines, t_player *pl);
 
 /*******************************************************************************
     BUILD FUNCTION
@@ -183,7 +180,8 @@ void        addtobox(float box[4], float x, float y);
 
 t_bspnode   *bspbuild(t_lst_line *lines);
 t_bspnode   *make_bsp(t_polygon lst_p[256], int nseg, t_player *pl);
-void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines);
+void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines,
+    t_vecf2 depth);
 void        bsp_renderer(t_player *pl, t_bspnode *node);
 void        close_bsp(t_bspnode *node);
 

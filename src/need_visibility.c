@@ -17,7 +17,7 @@ static float		cross2vecf(t_vecf2 a, t_vecf2 b)
 	return (c);
 }
 
-int intersect_line(t_vecf2 x[2], t_vecf2 y[2], float tol)
+int evaluate_intersectline(t_vecf2 x[2], t_vecf2 y[2], float tol)
 {
 	t_vecf2    dx;
     t_vecf2    dy;

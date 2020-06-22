@@ -1,100 +1,86 @@
 #include "../include/bsp.h"
 
-typedef int OutCode;
-
-const int INSIDE = 0; // 0000
-const int LEFT = 1;   // 0001
-const int RIGHT = 2;  // 0010
-const int BOTTOM = 4; // 0100
-const int TOP = 8;    // 1000
-
-// Compute the bit code for a point (x, y) using the clip rectangle
-// bounded diagonally by (xmin, ymin), and (xmax, ymax)
-
-// ASSUME THAT xmax, xmin, ymax and ymin are global constants.
-
-OutCode ComputeOutCode(double x, double y)
+static int compute_outcode(float x, float y, foat frustrum[4])
 {
-	OutCode code;
+	int code;
 
-	code = INSIDE;          // initialised as being inside of [[clip window]]
-
-	if (x < xmin)           // to the left of clip window
+	code = INSIDE;
+	if (x < frustrum[BOXLEFT])
 		code |= LEFT;
-	else if (x > xmax)      // to the right of clip window
+	else if (x > frustrum[BOXRIGHT])
 		code |= RIGHT;
-	if (y < ymin)           // below the clip window
+	if (y < frustrum[BOXBOTTOM])
 		code |= BOTTOM;
-	else if (y > ymax)      // above the clip window
+	else if (y > frustrum[BOXTOP])
 		code |= TOP;
-
 	return code;
 }
 
-// Cohen–Sutherland clipping algorithm clips a line from
-// P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
-// diagonal from (xmin, ymin) to (xmax, ymax).
-void CohenSutherlandLineClipAndDraw(double x0, double y0, double x1, double y1)
+static t_vecf2	compute_xy(t_vecf3 p1, t_vecf3 p2, float frustrum[4])
 {
-	// compute outcodes for P0, P1, and whatever point lies outside the clip rectangle
-	OutCode outcode0 = ComputeOutCode(x0, y0);
-	OutCode outcode1 = ComputeOutCode(x1, y1);
-	bool accept = false;
+	float 	x;
+	float	y;
 
-	while (true) {
-		if (!(outcode0 | outcode1)) {
-			// = 0000 segment entierement dans frustrum
-			accept = true;
-			break;
-		} else if (outcode0 & outcode1) {
-			// != 0000 les deux points sont d'un meme cote a l'exterieur du frustrum
-			break;
-		} else {
-			// failed both tests, so calculate the line segment to clip
-			// from an outside point to an intersection with clip edge
-			double x, y;
+	if (outcodeOut & TOP)
+	{
+		x = p1.x + (p2.x - p1.x) * (frustrum[BOXTOP] - p1.y) / (p2.y - p1.y);
+		y = frustrum[BOXTOP];
+	}
+	else if (outcodeOut & BOTTOM)
+	{
+		x = p1.x + (p2.x - p1.x) * (frustrum[BOXBOTTOM] - p1.y) / (p2.y - p1.y);
+		y = frustrum[BOXBOTTOM];
+	}
+	else if (outcodeOut & RIGHT)
+	{
+		y = p1.y + (p2.y - p1.y) * (frustrum[BOXRIGHT] - p1.x) / (p2.x - p1.x);
+		x = frustrum[BOXRIGHT];
+	}
+	else if (outcodeOut & LEFT)
+	{
+		y = p1.y + (p2.y - p1.y) * (frustrum[BOXLEFT] - p1.x) / (p2.x - p1.x);
+		x = frustrum[BOXLEFT];
+	}
+	return ((t_vecf2){x, y});
+}
 
-			// At least one endpoint is outside the clip rectangle; pick it.
-			OutCode outcodeOut = outcode1 > outcode0 ? outcode1 : outcode0;
+int cohensutherland_lineclip(t_line *line, t_lst_line *p_lines, t_cam2d *c)
+{
+	int 	outcode[2]
+	int		outcodeout;
+	t_vecf3	p1;
+	t_vecf3	p2;
+	t_vecf2	ret;
 
-			// Now find the intersection point;
-			// use formulas:
-			//   slope = (y1 - y0) / (x1 - x0)
-			//   x = x0 + (1 / slope) * (ym - y0), where ym is ymin or ymax
-			//   y = y0 + slope * (xm - x0), where xm is xmin or xmax
-			// No need to worry about divide-by-zero because, in each case, the
-			// outcode bit being tested guarantees the denominator is non-zero
-			if (outcodeOut & TOP) {           // point is above the clip window
-				x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0);
-				y = ymax;
-			} else if (outcodeOut & BOTTOM) { // point is below the clip window
-				x = x0 + (x1 - x0) * (ymin - y0) / (y1 - y0);
-				y = ymin;
-			} else if (outcodeOut & RIGHT) {  // point is to the right of clip window
-				y = y0 + (y1 - y0) * (xmax - x0) / (x1 - x0);
-				x = xmax;
-			} else if (outcodeOut & LEFT) {   // point is to the left of clip window
-				y = y0 + (y1 - y0) * (xmin - x0) / (x1 - x0);
-				x = xmin;
+	p1 = line->p1;
+	p2 = line->p2;
+	outcode[0] = compute_outcode(p1.x, p1.y, c->frustrum);
+	outcode[1] = compute_outcode(p2.x, p2.y, c->frustrum);
+	while (1)
+	{
+		if (!(outcode[0] | outcode[1]))
+		{
+			cpy4print();
+			return (SUCCESS);
+		}
+		else if (outcode[0] & outcode[1])
+			return (ERROR);
+		else
+		{
+			outcodeout = (outcode[1] > outcode[0]) ? outcode[1] : outcode[0];
+			ret = compute_xy(p1, p2, frustrum[4]);
+			if (outcodeout == outcode[0])
+			{
+				p1.x = ret.x;
+				p1.y = ret.y;
+				outcode0 = compute_outcode(p1.x, p1.y);
 			}
-
-			// Now we move outside point to intersection point to clip
-			// and get ready for next pass.
-			if (outcodeOut == outcode0) {
-				x0 = x;
-				y0 = y;
-				outcode0 = ComputeOutCode(x0, y0);
-			} else {
-				x1 = x;
-				y1 = y;
-				outcode1 = ComputeOutCode(x1, y1);
+			else
+			{
+				p2.x = ret.x;
+				p2.y = ret.y;
+				outcode1 = compute_outcode(p2.x, p2.y);
 			}
 		}
-	}
-	if (accept) {
-		// Following functions are left for implementation by user based on
-		// their platform (OpenGL/graphics.h etc.)
-		DrawRectangle(xmin, ymin, xmax, ymax);
-		LineSegment(x0, y0, x1, y1);
 	}
 }

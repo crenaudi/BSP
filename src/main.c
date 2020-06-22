@@ -14,29 +14,13 @@ static t_polygon    info(t_vecf3 p1, t_vecf3 p2, int *n, int sided)
     return (p);
 }
 
-static t_cam2d		init_cam2d(void)
-{
-	t_cam2d		c;
-
-	bzero(&c, sizeof(t_cam2d));
-	c.fov = 3.14159f / 3.0f;
-	c.half_fov = c.fov / 2.0f;
-    c.clipangle = 2 * c.fov;
-    c.depth = 160.f;
-    c.dvl.p.x = 0.f;
-    c.dvl.p.y = 0.f;
-    c.dvl.dx = 0.f;
-    c.dvl.dy = 0.f;
-	return (c);
-}
-
 static t_player	    init_player(void)
 {
 	t_player	p;
 
     p.height = 30;
-	p.coord_x = 80.;
-	p.coord_y = 80.;
+	p.x = 80.;
+	p.y = 80.;
 	p.eyes_dirx = 0.06f;
     p.eyes_diry = 0.0f;
     p.eyes_height = 1024 / 2;
@@ -66,7 +50,7 @@ int main(void)
     p[13] = info((t_vecf3){170,50,60}, (t_vecf3){140,20,60}, &n, TWOSIDED);
     printf("%d\n", n);
     player = init_player();
-    player.cam = init_cam2d();
+    player.cam = init_cam2d(&player);
     make_bsp(p, n, &player);
     //bsp_renderer(&player, node);
     return (0);
