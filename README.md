@@ -9,13 +9,10 @@ Model de noeux suivant :
 Node
 {
 
-  coordonnee segement;
+  struct segement;
   
-  side[0] node suivant dont le segment est devant celui ci
+  side[0] *FRONT*
   
-  side[1] node suivant dont le segment est derriere celui ci
+  side[1] *BACK*
   
 }
-
-
-Notons qu'un segment B traversant l'air d'un autre segment A sera decouper en deux autres segments distinct, l'un etant devant A, l'autre derriere A.
