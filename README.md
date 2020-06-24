@@ -10,10 +10,8 @@ Model de noeux suivant :
 Node
 {
 
-  struct segement;
-  
-  side[0] *FRONT*
-  
-  side[1] *BACK*
+  struct segement;\n
+  side[0] *FRONT*\n
+  side[1] *BACK*\n
   
 }
