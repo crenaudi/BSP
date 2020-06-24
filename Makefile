@@ -26,6 +26,8 @@ SRCS = 	bsp_init.c			\
 		bsp_renderer.c		\
 		bsp_precompute.c	\
 		doom_init.c			\
+		doom_close.c		\
+		doom_error.c		\
 		need_visibility.c	\
 		main.c
 
