@@ -17,3 +17,9 @@ Node {
   
   
 }
+
+source de travaille:
+
+- Black Book : http://orangeti.de/OLD/graphics_programming_black_book/html/index.html
+- http://deptinfo.unice.fr/twiki/bin/view/Minfo03/RapportMedioniXavier#Initialisation_de_la_bounding_bo
+- http://deptinfo.unice.fr/twiki/bin/view/Minfo03/AlgosJeux3DRapport#Ray_Casting_impl_mentation
