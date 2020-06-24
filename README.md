@@ -1,6 +1,10 @@
 # BSP
+*WARNING*
+Ce travaille est pensee pour fonctionner avec la LIBGFX, production de Pascal Ddelord, et moi meme Camille Renaudin.
+Lien : .https://github.com/crenaudi/Libgfx
 
-Il s'agit ici de faire un bsp sur le model de celui mis au point par John Carmak pour DOOM. L'arbre binaire doit classer chaque segment de la map de maniaire obtimal suivant le model suivant :
+Arbre binaire suivant le travail de John Carmack avec un tri limitant les coupes, et fonction de rendu ecrite pour un ray casting (impose dans le sujet).
+Model de noeux suivant :
 
 Node
 {
