@@ -1,5 +1,6 @@
 # BSP
-*WARNING*
+*ATTENTION*
+
 Ce travaille est pensee pour fonctionner avec la LIBGFX, production de Pascal Ddelord, et moi meme Camille Renaudin.
 Lien : .https://github.com/crenaudi/Libgfx
 
