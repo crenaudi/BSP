@@ -1,45 +1,25 @@
 #include "../include/bsp.h"
 
-float		evaluate_pointonview(t_cam2d c, float x, float y)
-{
-	float 	angle;
-	float	dist;
-	t_vecf2	fvec;
-
-	fvec.x = x - c.dvl_lr.p.x;
-	fvec.y = y - c.dvl_lr.p.y;
-	dist = sqrtf(fvec.x * fvec.x + fvec.y * fvec.y);
-    angle = atan2f(c.dvl_lr.dy, c.dvl_lr.dx) - atan2f(fvec.y, fvec.x);
-    if (angle < -3.14159f)
-        angle += 2 * 3.14159f;
-    if (angle > 3.14159f)
-        angle -= 2 * 3.14159f;
-	if (fabs(angle) < c.half_fov && dist >= 0.5f && dist < c.depth)
-		return (angle);
-    else
-        return (0);
-}
-
-int		seg_onview(t_cam2d c, t_line line, t_vecf2 depth)
+int		seg_onview(t_cam2d c, t_line *line, t_vecf2 depth)
 {
 	t_vecf2 x[2];
 	t_vecf2 y[2];
 
-	line.angle1 = evaluate_pointonview(c, line.p1.x, line.p1.y);
-	line.angle2 = evaluate_pointonview(c, line.p2.x, line.p2.y);
-	if (line.angle1 != 0)
+	line->angle1 = evaluate_pointonview(c, line->p1.x, line->p1.y);
+	line->angle2 = evaluate_pointonview(c, line->p2.x, line->p2.y);
+	if (line->angle1 != 0)
         return (SUCCESS);
-    if (line.angle2 != 0)
+    if (line->angle2 != 0)
         return (SUCCESS);
 	x[0].x = c.dvl_lr.p.x;
 	x[0].y = c.dvl_lr.p.y;
 	x[1].x = depth.x;
 	x[1].y = depth.y;
-	y[0].x = line.p1.x;
-	y[0].y = line.p1.y;
-	y[1].x = line.p2.x;
-	y[1].y = line.p2.y;
-	if (evaluate_intersectline(x, y, 0) == 1)
+	y[0].x = line->p1.x;
+	y[0].y = line->p1.y;
+	y[1].x = line->p2.x;
+	y[1].y = line->p2.y;
+	if (evaluate_intersect_line(x, y, 0) == 1)
 		return (SUCCESS);
 	return (ERROR);
 }
@@ -52,14 +32,13 @@ void walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines, t_vecf2 depth)
     if (p_lines->count < 255)
         if (node->side[side] != NULL)
             walk_tree(node->side[side], c, p_lines, depth);
-    if (seg_onview(c, node->line, depth) == SUCCESS)
+    if (seg_onview(c, &node->line, depth) == SUCCESS)
     {
-        printf("--> line %d is onview\n", node->line.linedef);
 		cpyl(&p_lines->lst[p_lines->count], &node->line);
         p_lines->count++;
     }
     if (p_lines->count < 255)
-        if (node->side[side ^ 1] != NULL)
+        if (node->side[side ^ 1] != NULL && node->line.twoside == 1)
             walk_tree(node->side[side ^ 1], c, p_lines, depth);
 }
 
@@ -72,9 +51,11 @@ void    bsp_renderer(t_player *pl, t_bspnode *node)
 
 	tmp = node;
 	init_lstline(&p_lines);
-	update_cam2d(&pl->cam, pl);
+	update_cam2d(&pl->cam, pl->x, pl->y, pl->eyes_dirx);
 	depth.x = pl->cam.dvl_lr.p.x + pl->cam.dvl_lr.dx * pl->cam.depth;
 	depth.y = pl->cam.dvl_lr.p.y + pl->cam.dvl_lr.dy * pl->cam.depth;
+	printf("CAM center : %f, %f\n",depth.x,depth.y);
+
     walk_tree(tmp, pl->cam, &p_lines, depth);
 
 	i = -1;

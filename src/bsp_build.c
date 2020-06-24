@@ -4,11 +4,11 @@ void cpyl(t_line *dest, t_line *src)
 {
     dest->p1 = src->p1;
     dest->p2 = src->p2;
-    dest->side = src->side;
+    dest->twoside = src->twoside;
     dest->offset = src->offset;
     dest->linedef = src->linedef;
-    dest->angle1 = 0;
-    dest->angle2 = 0;
+    dest->angle1 = src->angle1;
+    dest->angle2 = src->angle2;
     /*
     dest->bbox[BOXLEFT] = (src->p1.x < src->p2.x) ? src->p1.x : src->p2.x;
     dest->bbox[BOXRIGHT] = (src->p1.x < src->p2.x) ? src->p2.x : src->p1.x;
@@ -38,7 +38,7 @@ t_bspnode   *bspbuild(t_lst_line *lines)
     cpyl(&node->line, &bestl);
     if(v[1] == INT_MAX && lines->count < 2)
         return(node);
-    make_divlinefromworld(&node->divline, &bestl);
+    make_divline(&node->divline, bestl.p1, bestl.p2);
     init_2lstline(&front_back[0], &front_back[1]);
     execute_split(lines, &bestl, &front_back[0], &front_back[1]);
     node->side[0] = bspbuild(&front_back[0]);
@@ -58,7 +58,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
         lines->lst[i].p1 = origine[i].p1;
         lines->lst[i].p2 = origine[i].p2;
         lines->lst[i].linedef = i + 1;
-        lines->lst[i].side = 0;
+        lines->lst[i].twoside = 0;
         lines->lst[i].offset = 0;
         lines->lst[i].sector = origine[i].sector;
 		lines->lst[i].grouped = false;
@@ -66,7 +66,7 @@ void    make_seg(t_lst_line *lines, t_polygon origine[256], int nseg)
         {
             lines->lst[i].p1 = origine[i].p2;
             lines->lst[i].p2 = origine[i].p1;
-            lines->lst[i].side = 1;
+            lines->lst[i].twoside = 1;
         }
         printf("line %d (%f,%f)(%f,%f)\n", lines->lst[i].linedef,
             lines->lst[i].p1.x, lines->lst[i].p1.y,

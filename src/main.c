@@ -50,7 +50,7 @@ int main(void)
     p[13] = info((t_vecf3){170,50,60}, (t_vecf3){140,20,60}, &n, TWOSIDED);
     printf("%d\n", n);
     player = init_player();
-    player.cam = init_cam2d(&player);
+    player.cam = init_cam2d(player.x, player.y, player.eyes_dirx);
     make_bsp(p, n, &player);
     //bsp_renderer(&player, node);
     return (0);

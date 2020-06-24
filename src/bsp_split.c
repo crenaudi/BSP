@@ -11,7 +11,7 @@ int     evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade, int grade
     nfront = 0;
     nback = 0;
     info[0] = -1;
-    make_divlinefromworld(&dvl, splt);
+    make_divline(&dvl, splt->p1, splt->p2);
     while (++info[0] < lines->count)
     {
         line_p = lines->lst[info[0]];
@@ -38,7 +38,7 @@ t_line  cutline(t_line *wl, t_divline *dvl)
     t_vecf3     intersect;
     float       frac;
 
-    make_divlinefromworld(&tmp, wl);
+    make_divline(&tmp, wl->p1, wl->p2);
     bzero(&new, sizeof(t_line));
     new = *wl;
     frac = intersect_vector(&tmp, dvl); // if == 0 printf("error intersect : vector are parallel or outside line");
@@ -71,7 +71,7 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
     t_divline   dvl;
 
     i = -1;
-    make_divlinefromworld(&dvl, spliton);
+    make_divline(&dvl, spliton->p1, spliton->p2);
     while (++i < lines->count)
     {
         line_p = lines->lst[i];
@@ -79,43 +79,43 @@ void    execute_split(t_lst_line *lines, t_line *spliton,
             && line_p.p2.x == spliton->p2.x && line_p.p2.y == spliton->p2.y))
         {
             side = lineonside(&line_p, &dvl);
-            printf("line %d %d ", line_p.linedef, side);
+            //printf("line %d %d ", line_p.linedef, side);
             if (side == 0)
             {
                 cpyl(&frontlist->lst[frontlist->count], &line_p);
-
+/*
                 printf("front (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
                     frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
-
+*/
                 frontlist->count += 1;
             }
             else if (side == 1)
             {
                 cpyl(&backlist->lst[backlist->count], &line_p);
-
+/*
                 printf("back (%f,%f)(%f,%f)\n",
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
                     backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
-
+*/
                 backlist->count += 1;
             }
             else if (side == -2)
             {
                 new_p = cutline(&line_p, &dvl);
                 cpyl(&frontlist->lst[frontlist->count], &line_p);
-
+/*
                 printf("splitfront (%f,%f)(%f,%f)\n",
                     frontlist->lst[frontlist->count].p1.x, frontlist->lst[frontlist->count].p1.y,
                     frontlist->lst[frontlist->count].p2.x, frontlist->lst[frontlist->count].p2.y);
-
+*/
                 frontlist->count += 1;
                 cpyl(&backlist->lst[backlist->count], &new_p);
-
+/*
                 printf("splitback %d (%f,%f)(%f,%f)\n", backlist->lst[backlist->count].linedef,
                     backlist->lst[backlist->count].p1.x, backlist->lst[backlist->count].p1.y,
                     backlist->lst[backlist->count].p2.x, backlist->lst[backlist->count].p2.y);
-
+*/
                 backlist->count += 1;
             }
         }
