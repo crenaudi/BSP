@@ -28,7 +28,11 @@ SRCS = 	bsp_init.c			\
 		doom_init.c			\
 		doom_close.c		\
 		doom_error.c		\
+		doom_key.c			\
+		doom_move.c			\
+		doom_draw.c			\
 		need_visibility.c	\
+		raycast.c			\
 		main.c
 
 LDFLAGS = -lm
@@ -41,7 +45,7 @@ ifeq ($(SYS), Darwin)
 MLX_FOLDER = "mlx_macos"
 CFLAGS += -I./../Libbfx/libgfx/includes/MacOs
 LDFLAGS += -framework OpenGl -framework AppKit
-LDFLAGS += -lmlx
+LDFLAGS += -I /usr/local/include/mlx.h -L /usr/local/lib/ -lmlx
 else
 CFLAGS += -I./../Libbfx/libgfx/includes/Linux -I./mlx_linux
 MLX_FOLDER = "mlx_linux"

@@ -1,10 +1,22 @@
 #include "../include/bsp.h"
 
+int     run(t_engine *e)
+{
+	check_move(e);
+    bsp_renderer(e, e->player, e->map->bsp);
+    mlx_put_image_to_window(e->mlx_ptr, e->win_ptr, e->img->ptr, 0, 0);
+    mlx_string_put(e->mlx_ptr, e->win_ptr, 30, 30, 0xFFFFFF, "LEVEL");
+	if (e->nsrc)
+		e->img = e->srcs[0];
+	else
+		e->img = e->srcs[1];
+	e->nsrc = !e->nsrc;
+    return (SUCCESS);
+}
+
 int main(void)
 {
     t_lst_line  polygons;
-    t_player    player;
-    t_map       map;
     t_engine    engine;
 
     init_lstline(&polygons);
@@ -23,15 +35,14 @@ int main(void)
     add_polygon2list(&polygons, (t_vecf3){120,110,60}, (t_vecf3){170,50,60}, TWOSIDED, 1);
     add_polygon2list(&polygons, (t_vecf3){170,50,60}, (t_vecf3){140,20,60}, TWOSIDED, 1);
 
-    printf("%d\n", polygons.count);
-
     ft_bzero(&engine, sizeof(t_engine));
-    init_engine(&engine);
-    player = init_player();
-    player.cam = init_cam2d(player.x, player.y, player.eyes_dirx);
-    map = init_map(&engine, &polygons, 1);
-    bsp_renderer(&player, map.bsp);
-    close_engine(&engine, &map);
-    printf("\nAU REVOIR !\n");
+    init_engine(&engine, &polygons);
+
+    mlx_loop_hook(engine.mlx_ptr, run, &engine);
+	mlx_hook(engine.win_ptr, 2, (1L << 0), key_press, &engine);
+	mlx_hook(engine.win_ptr, 3, (1L << 1), key_release, &engine);
+    mlx_hook(engine.win_ptr, 17, (1L << 17), close_hook, &engine);
+	mlx_loop(engine.mlx_ptr);
+
     return (0);
 }

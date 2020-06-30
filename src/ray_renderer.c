@@ -46,55 +46,80 @@ void			dda_info_txtur(t_ray *r, t_player *p)
 	}
 }
 
-int				dda_ray(t_ray *r, t_player *p, t_map *map)
+float	dist2point(t_player *pl, t_vecf3 wall)
 {
-	r->ray.x = sinf(r->ray_angle);
-	r->ray.y = cosf(r->ray_angle);
-	r->ray_dist = 0;
-	while (r->hit != 1)
-	{
-		if (r->ray_dist.x < r->ray_dist.y)
-			r->ray_dist.x += EPSILON;
-		else
-			r->ray_dist.y += EPSILON;
-		r->map_x = (int)(p->coord_x + r->ray.x * r->ray_dist.x);
-		r->map_y = (int)(p->coord_y + r->ray.y * r->ray_dist.y);
-		if (r->map_y > map->size_y || r->map_x > map->size_x)
-			return (ERROR);
-		if (map->data[r->map_y][r->map_x] != 0)
-		{
-			r->hit = map->data[r->map_y][r->map_x];
-			dda_info_txtur(r, p);
-		}
-	}
-	return (SUCCESS);
+	float	x;
+	float	y;
+
+	x = wall.x - pl->x;
+	y = wall.y - pl->y;
+	return (sqrtf(x * x + y * y));
 }
 
-int				ray_cast(t_env *e, t_cam2d *c)
+float	lerp_dist(t_vecf3 a, t_vecf3 b, float t)
+{
+	float	x;
+	float	y;
+
+	x = wall.x - pl->x;
+	y = wall.y - pl->y;
+	return (sqrtf(x * x + y * y));
+}
+
+int		ray_cast(t_engine *engine, t_player *pl, t_line *line, t_map *map)
 {
 	float	err;
 	float	drawing[2];
-	int		x;
-	int		i[3];
-	t_ray	r;
+	int		col;
+	int		end;
 
-	x = -1;
-	while (++x < X_SCREEN)
+	float	ratio;
+	float	angle;
+	float 	epsilon;
+	float	diststart;
+	float	distend;
+	int		xstart;
+	int 	xend;
+
+
+	0	  -		1024;
+	-26.562254 - 33.437748;
+
+	if (line->p1 == pl->cam->amin)
+		xstart = 0;
+	else if (line->p1 == pl->cam->amax)
+		xstart = e->xplan;
+	else
+		xstart = cal;
+	if (line->p2 == pl->cam->amin)
+		xend = 0;
+	else if (line->p2 == pl->cam->amax)
+		xend = e->xplan;
+	else
+		xend = cal;
+
+	diststart = dist2point(pl, line->p1);
+	distend = dist2point(pl, line->p2);
+
+	angle = line->angle1;
+	epsilon = line->angle1 / line->angle2;
+
+	while (xstart < xend)
 	{
-		r.ray_angle = (float)(e->player->eyes_dir - c->half_fov)
-			+ (float)(x) / (float)(X_SCREEN) * c->fov;
-		r.hit = 0;
-		if (dda_ray(&r, e->player, e->map) == SUCCESS)
-		{
-			err = ((float)x * c->fov / (float)(X_SCREEN)) - c->half_fov;
-			r.ray_dist *= cosf(err);
-			drawing[0] = pl->eyes_height - (((float)(Y_SCREEN) / ((r.ray_dist.x
-				< r.ray_dist.y) ? r.ray_dist.x : r.ray_dist.y)) / 1.5f);
-			drawing[1] = (float)(Y_SCREEN) - drawing[0];
-			i[0] = x;
-			i[2] = (drawing[1] > Y_SCREEN) ? Y_SCREEN : drawing[1];
-			draw_wall(e, r, i, drawing);
-		}
+
+		dist2wall = lerp_dist(line->p1, line->p2, angle);
+		err = ((float)x * c->fov / (float)(e->xplan)) - pl->cam->half_fov;
+		dist2wall *= cosf(err);
+		ratio = line->height / (float)player->height;
+
+		drawing[0] =  e->half_yplan - (((float)(e->yplan) / dist2wall) / ratio);
+		drawing[1] = (float)(e->yplan) - drawing[0];
+		col = x;
+		end = (drawing[1] > e->yplan) ? e->yplan : drawing[1];
+
+		draw_wall(e, r, i, drawing);
+
+		angle += epsilon;
 	}
 	return (SUCCESS);
 }

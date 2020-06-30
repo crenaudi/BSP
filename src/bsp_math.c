@@ -1,5 +1,15 @@
 #include "../include/bsp.h"
 
+float	distfrom(float x0, float y0, float x1, float y1)
+{
+	float 	x;
+	float	y;
+
+	x = x1 - x0;
+	y = y1 - y0;
+	return (sqrtf(x * x + y * y));
+}
+
 int     sign(float i)
 {
 	if (i < 0)

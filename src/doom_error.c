@@ -14,5 +14,5 @@ void	doom_error(t_engine *e, unsigned int err, char *line)
 	if (line != NULL)
 		ft_putendl(line);
 	if (close == 1)
-		close_engine(e, NULL);
+		close_engine(e);
 }

@@ -42,29 +42,19 @@ void walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines, t_vecf2 depth)
             walk_tree(node->side[side ^ 1], c, p_lines, depth);
 }
 
-void    bsp_renderer(t_player *pl, t_bspnode *node)
+void    bsp_renderer(t_engine *e, t_player *pl, t_bspnode *node)
 {
     t_bspnode   *tmp;
 	t_lst_line 	p_lines;
 	t_vecf2 	depth;
-	int			i;
 
 	tmp = node;
 	init_lstline(&p_lines);
 	update_cam2d(&pl->cam, pl->x, pl->y, pl->eyes_dirx);
 	depth.x = pl->cam.dvl_lr.p.x + pl->cam.dvl_lr.dx * pl->cam.depth;
 	depth.y = pl->cam.dvl_lr.p.y + pl->cam.dvl_lr.dy * pl->cam.depth;
-	printf("CAM center : %f, %f\n",depth.x,depth.y);
-
     walk_tree(tmp, pl->cam, &p_lines, depth);
-
-	i = -1;
-	printf("PRINTABLE LINES\n");
-	while (++i < p_lines.count)
-		printf("line %d : %f,%f - %f,%f\n", p_lines.lst[i].linedef, p_lines.lst[i].p1.x,
-			p_lines.lst[i].p1.y, p_lines.lst[i].p2.x, p_lines.lst[i].p2.y);
-
-	precompute(&p_lines, pl);
+	precompute(e, &p_lines, pl);
 }
 
 /*

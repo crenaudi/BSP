@@ -11,8 +11,8 @@
 # include "libft.h"
 # include "gfx.h"
 
-# define WIDTH      1000
-# define HEIGHT     750
+# define WIDTH      800
+# define HEIGHT     600
 # define TWOSIDED   4
 # define MAXWALL    256
 # define MAXSPRITE  128
@@ -33,9 +33,11 @@ typedef struct s_map        t_map;
 typedef struct s_sector     t_sector;
 typedef struct s_line       t_line;
 typedef struct s_lst_line   t_lst_line;
+typedef struct s_info_line  t_info_line;
 typedef struct s_bspnode    t_bspnode;
 typedef struct s_player     t_player;
 typedef struct s_engine     t_engine;
+typedef struct s_global     t_global;
 
 struct s_line
 {
@@ -49,6 +51,13 @@ struct s_line
     int             sector;
     float           angle1;
     float           angle2;
+};
+
+struct s_info_line
+{
+    float           d1;
+    float           d2;
+    float           t;
 };
 
 /*
@@ -104,23 +113,41 @@ struct			s_player
     t_cam2d		cam;
 };
 
+struct			s_global
+{
+	t_player	player;
+    t_map		map;
+};
+
+
 struct			s_engine
 {
+    void		*mlx_ptr;
+	void		*win_ptr;
+    t_global    global;
+    t_player	*player;
+    t_map		*map;
+    t_img		*img;
+	t_img		*srcs[2];
+    int         nsrc;
 	int         xplan;
 	int         yplan;
 	int         half_xplan;
     int         half_yplan;
-    int         nsrc;
-    void		*mlx_ptr;
-	void		*win_ptr;
-	t_img		*img;
-	t_img		*srcs[2];
+    short       key_right;
+    short       key_left;
+    short       key_w;
+    short       key_s ;
+    short       key_a;
+    short       key_d;
+    short       key_shoot;
 };
 
 /*******************************************************************************
     MATH FUNCTION
 *******************************************************************************/
 
+float	    distfrom(float x0, float y0, float x1, float y1);
 int         sign(float i);
 float       float_round(float x);
 int         pointonside(t_vecf3 pt, t_divline *dvl);
@@ -132,7 +159,7 @@ int         seg_onview(t_cam2d c, t_line *line, t_vecf2 depth);
     INIT FUNCTION
 *******************************************************************************/
 
-void		init_engine(t_engine *e);
+void		init_engine(t_engine *e, t_lst_line *polygons);
 t_player    init_player(void);
 t_map		init_map(t_engine *e, t_lst_line *polygons, int nb_sectors);
 void        init_lstline(t_lst_line *lines);
@@ -140,7 +167,8 @@ void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2);
 t_bspnode   *init_node();
 void        add_polygon2list(t_lst_line *lines, t_vecf3 p1, t_vecf3 p2,
     int flags, int sector);
-void        precompute(t_lst_line *lstlines, t_player *pl);
+void        precompute(t_engine *e, t_lst_line *lstlines, t_player *pl);
+void		init_global(t_global *global, t_engine *e, t_lst_line *polygons);
 
 /*******************************************************************************
     BUILD BSP FUNCTION
@@ -155,7 +183,7 @@ void        cpyl(t_line *dest, t_line *src);
 t_bspnode   *bspbuild(t_lst_line *lines);
 void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines,
     t_vecf2 depth);
-void        bsp_renderer(t_player *pl, t_bspnode *node);
+void        bsp_renderer(t_engine *e, t_player *pl, t_bspnode *node);
 
 /*******************************************************************************
     CLOSE
@@ -163,11 +191,18 @@ void        bsp_renderer(t_player *pl, t_bspnode *node);
 
 void		close_map(t_map *map);
 void        close_bsp(t_bspnode *node);
-void		close_engine(t_engine *e, t_map *map);
+void		close_engine(t_engine *e);
+int         close_hook(t_engine *e);
 void        doom_error(t_engine *e, unsigned int err, char *line);
 
 /*******************************************************************************
     DOOM_TEST
 *******************************************************************************/
+
+void	raycast(t_engine *e, t_player *pl, t_lst_line *lines, t_info_line *info);
+int		key_press(int key, t_engine *e);
+int		key_release(int key, t_engine *e);
+void    draw_col(t_engine *e, int x, int start, int end, float dist);
+void    check_move(t_engine *e);
 
 #endif

@@ -55,7 +55,7 @@ static t_vecf3 cut_bottom(t_line *line, t_cam2d c)
     return (new);
 }
 
-static void find_p1(t_line *line, t_player *pl, float amin, float amax)
+static void find_p1(t_line *line, t_info_line *linfo, t_player *pl)
 {
     int outcode0;
     int outcode1;
@@ -67,12 +67,12 @@ static void find_p1(t_line *line, t_player *pl, float amin, float amax)
         if (outcode0 == 1)
         {
             line->p1 = cut_right(line, pl->cam);
-            line->angle1 = amin;
+            line->angle1 = pl->cam.amin;
         }
         else
         {
             line->p1 = cut_left(line, pl);
-            line->angle1 = amax;
+            line->angle1 = pl->cam.amax;
         }
     }
     else
@@ -81,9 +81,10 @@ static void find_p1(t_line *line, t_player *pl, float amin, float amax)
         line->angle1 = evaluate_pointonview(pl->cam,
             line->p1.x, line->p1.y);
     }
+    linfo->d1 = distfrom(line->p1.x, line->p1.y, pl->x, pl->y);
 }
 
-static void find_p2(t_line *line, t_player *pl, float amin, float amax)
+static void find_p2(t_line *line, t_info_line *linfo, t_player *pl)
 {
     int outcode0;
     int outcode1;
@@ -95,12 +96,12 @@ static void find_p2(t_line *line, t_player *pl, float amin, float amax)
         if (outcode0 == 1)
         {
             line->p2 = cut_right(line, pl->cam);
-            line->angle2 = amin;
+            line->angle2 = pl->cam.amin;
         }
         else
         {
             line->p2 = cut_left(line, pl);
-            line->angle2 = amax;
+            line->angle2 = pl->cam.amax;
         }
     }
     else
@@ -109,37 +110,34 @@ static void find_p2(t_line *line, t_player *pl, float amin, float amax)
         line->angle2 = evaluate_pointonview(pl->cam,
             line->p2.x, line->p2.y);
     }
+    linfo->d2 = distfrom(line->p2.x, line->p2.y, pl->x, pl->y);
 }
 
-void precompute(t_lst_line *lstlines, t_player *pl)
+void precompute(t_engine *e, t_lst_line *lstlines, t_player *pl)
 {
-    int         i;
-    //int         j;
-    float       amax;
-    float       amin;
-    t_line      *line;
+    int             i;
+    t_line          *line;
+    t_info_line     info[255];
 
     i = -1;
-    amax = rad_adjust(pl->eyes_dirx + pl->cam.half_fov);
-    amin = rad_adjust(pl->eyes_dirx - pl->cam.half_fov);
     while (++i < lstlines->count)
     {
         line = &lstlines->lst[i];
         if (line->angle1 == 0)
-            find_p1(line, pl, amin, amax);
+            find_p1(line, &info[i], pl);
         if (line->angle2 == 0)
-            find_p2(line, pl, amin, amax);
-
-            /*
-        j = -1;
-        while (++j < i)
-            if (line->angle1 lstlines->lst[j]->angle1
-                && line->angle2 lstlines->lst[j]->angle2)
-            break;
-        if (j == i)
-            printf("print ");
-            */
+            find_p2(line, &info[i], pl);
+        if (line->angle2 < line->angle1)
+        {
+            line->angle1 += line->angle2;
+            line->angle2 = line->angle1 - line->angle2;
+            line->angle1 = line->angle1 - line->angle2;
+            info[i].d1 += info[i].d2;
+            info[i].d2 = info[i].d1 - info[i].d2;
+            info[i].d2 = info[i].d1 - info[i].d2;
+        }
     }
+    raycast(e, pl, lstlines, info);
 }
 /*
 printf("\nLINE %d :\n", line->linedef);
