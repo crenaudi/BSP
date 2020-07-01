@@ -16,6 +16,7 @@ void        init_lstline(t_lst_line *lines)
 {
     lines->count = 0;
     memset(&lines->lst, 256, sizeof(t_line));
+	memset(&lines->leq, 256, sizeof(t_linear_eq));
 }
 
 void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2)

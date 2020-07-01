@@ -35,6 +35,7 @@ void walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines, t_vecf2 depth)
     if (seg_onview(c, &node->line, depth) == SUCCESS)
     {
 		cpyl(&p_lines->lst[p_lines->count], &node->line);
+		//p_lines->leq[p_lines->count].dvl = &node->divline;
         p_lines->count++;
     }
     if (p_lines->count < 255)

@@ -18,21 +18,22 @@ CC = clang
 CFLAGS = -Wall -Wextra -Werror -g
 CFLAGS += -I./include/
 
-SRCS = 	bsp_init.c			\
-		bsp_build.c			\
-		bsp_close.c			\
-		bsp_math.c			\
-		bsp_split.c			\
-		bsp_renderer.c		\
-		bsp_precompute.c	\
-		doom_init.c			\
-		doom_close.c		\
-		doom_error.c		\
-		doom_key.c			\
-		doom_move.c			\
-		doom_draw.c			\
-		need_visibility.c	\
-		raycast.c			\
+SRCS = 	bsp_init.c				\
+		bsp_build.c				\
+		bsp_close.c				\
+		bsp_math.c				\
+		bsp_split.c				\
+		bsp_renderer.c			\
+		bsp_precompute.c		\
+		bsp_linearequation.c	\
+		doom_init.c				\
+		doom_close.c			\
+		doom_error.c			\
+		doom_key.c				\
+		doom_move.c				\
+		doom_draw.c				\
+		need_visibility.c		\
+		raycast.c				\
 		main.c
 
 LDFLAGS = -lm

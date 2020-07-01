@@ -55,7 +55,7 @@ static t_vecf3 cut_bottom(t_line *line, t_cam2d c)
     return (new);
 }
 
-static void find_p1(t_line *line, t_info_line *linfo, t_player *pl)
+static void find_p1(t_line *line, t_player *pl)
 {
     int outcode0;
     int outcode1;
@@ -81,10 +81,9 @@ static void find_p1(t_line *line, t_info_line *linfo, t_player *pl)
         line->angle1 = evaluate_pointonview(pl->cam,
             line->p1.x, line->p1.y);
     }
-    linfo->d1 = distfrom(line->p1.x, line->p1.y, pl->x, pl->y);
 }
 
-static void find_p2(t_line *line, t_info_line *linfo, t_player *pl)
+static void find_p2(t_line *line, t_player *pl)
 {
     int outcode0;
     int outcode1;
@@ -110,39 +109,38 @@ static void find_p2(t_line *line, t_info_line *linfo, t_player *pl)
         line->angle2 = evaluate_pointonview(pl->cam,
             line->p2.x, line->p2.y);
     }
-    linfo->d2 = distfrom(line->p2.x, line->p2.y, pl->x, pl->y);
 }
 
 void precompute(t_engine *e, t_lst_line *lstlines, t_player *pl)
 {
-    int             i;
-    t_line          *line;
-    t_info_line     info[255];
+    int     i;
+    t_line  *line;
 
     i = -1;
     while (++i < lstlines->count)
     {
         line = &lstlines->lst[i];
         if (line->angle1 == 0)
-            find_p1(line, &info[i], pl);
+            find_p1(line, pl);
         if (line->angle2 == 0)
-            find_p2(line, &info[i], pl);
+            find_p2(line, pl);
         if (line->angle2 < line->angle1)
         {
             line->angle1 += line->angle2;
             line->angle2 = line->angle1 - line->angle2;
             line->angle1 = line->angle1 - line->angle2;
-            info[i].d1 += info[i].d2;
-            info[i].d2 = info[i].d1 - info[i].d2;
-            info[i].d2 = info[i].d1 - info[i].d2;
+            lstlines->leq[i].p = line->p2;
+            lstlines->leq[i].dx = line->p1.x - line->p2.x;
+            lstlines->leq[i].dy = line->p1.y - line->p2.y;
         }
+        else
+        {
+            lstlines->leq[i].p = line->p1;
+            lstlines->leq[i].dx = line->p2.x - line->p1.x;
+            lstlines->leq[i].dy = line->p2.y - line->p1.y;
+        }
+        printf("p1 %f, %f p2 %f, %f", line->p1.x, line->p1.y, line->p2.x, line->p2.y);
+        precompute_linear_equation(&lstlines->leq[i], pl->x, pl->y);
     }
-    raycast(e, pl, lstlines, info);
+    raycast(e, pl, lstlines);
 }
-/*
-printf("\nLINE %d :\n", line->linedef);
-printf("p1 -> %f, %f\np2 -> %f, %f\nangle1 -> %f\nangle2 -> %f\n",
-    line->p1.x, line->p1.y, line->p2.x, line->p2.y, line->angle1, line->angle2);
-printf("p1 -> %f, %f\np2 -> %f, %f\nangle1 -> %f\nangle2 -> %f\n",
-    line->p1.x, line->p1.y, line->p2.x, line->p2.y, line->angle1, line->angle2);
-*/

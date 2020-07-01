@@ -33,7 +33,7 @@ typedef struct s_map        t_map;
 typedef struct s_sector     t_sector;
 typedef struct s_line       t_line;
 typedef struct s_lst_line   t_lst_line;
-typedef struct s_info_line  t_info_line;
+typedef struct s_linear_eq  t_linear_eq;
 typedef struct s_bspnode    t_bspnode;
 typedef struct s_player     t_player;
 typedef struct s_engine     t_engine;
@@ -53,11 +53,16 @@ struct s_line
     float           angle2;
 };
 
-struct s_info_line
+struct s_linear_eq
 {
-    float           d1;
-    float           d2;
-    float           t;
+    t_divline       *dvl;
+    float           dist;
+	float           dx;
+	float           dy;
+    t_vecf3         p;
+    t_vecf2         xprime;
+    t_vecf2         yprime;
+    t_vecf2         pprime;
 };
 
 /*
@@ -76,6 +81,7 @@ struct s_lst_line
 {
     int             count;
     t_line          lst[256];
+    t_linear_eq     leq[256];
 };
 
 struct s_bspnode
@@ -154,6 +160,9 @@ int         pointonside(t_vecf3 pt, t_divline *dvl);
 int         lineonside(t_line *l, t_divline *dvl);
 float		evaluate_pointonview(t_cam2d c, float x, float y);
 int         seg_onview(t_cam2d c, t_line *line, t_vecf2 depth);
+void        precompute_linear_equation(t_linear_eq *leq, float plx, float ply);
+void        execute_linear_equation(t_linear_eq *leq, float plx, float ply,
+    float a);
 
 /*******************************************************************************
     INIT FUNCTION
@@ -199,10 +208,10 @@ void        doom_error(t_engine *e, unsigned int err, char *line);
     DOOM_TEST
 *******************************************************************************/
 
-void	raycast(t_engine *e, t_player *pl, t_lst_line *lines, t_info_line *info);
-int		key_press(int key, t_engine *e);
-int		key_release(int key, t_engine *e);
-void    draw_col(t_engine *e, int x, int start, int end, float dist);
-void    check_move(t_engine *e);
+void	   raycast(t_engine *e, t_player *pl, t_lst_line *lines);
+int		   key_press(int key, t_engine *e);
+int		   key_release(int key, t_engine *e);
+void       draw_col(t_engine *e, int x, int start, int end, float dist);
+void       check_move(t_engine *e);
 
 #endif

@@ -1,8 +1,8 @@
 #include "../include/bsp.h"
-
+/*
 static float 	*update_tabdist()
 {}
-
+*/
 t_player	    init_player(void)
 {
 	t_player	p;
@@ -47,7 +47,7 @@ void		init_engine(t_engine *e, t_lst_line *polygons)
 		doom_error(e, 0 ^ (1 << 16), "srcs[1] fail");
 	e->img = e->srcs[0];
 	e->nsrc = 0;
-	e->dist = update_tabdist(e->yplan);
+	//e->dist = update_tabdist(e->yplan);
 
 	e->map = &(e->global.map);
 	e->player = &(e->global.player);
