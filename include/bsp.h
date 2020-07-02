@@ -55,13 +55,13 @@ struct s_line
 
 struct s_linear_eq
 {
-    t_divline       *dvl;
+    float           plan;
     float           dist;
 	float           dx;
 	float           dy;
     t_vecf3         p;
-    t_vecf2         xprime;
-    t_vecf2         yprime;
+    t_vecf4         xprime;
+    t_vecf4         yprime;
     t_vecf2         pprime;
 };
 

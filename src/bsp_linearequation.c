@@ -10,24 +10,31 @@ void precompute_linear_equation(t_linear_eq *leq, float plx, float ply)
 	float divxy;
 	float divyy;
 
-	printf("player : %f, %f\n", plx, ply);
-	printf("p : %f, %f\n", leq->p.x, leq->p.y);
-	printf("dx : %f\n", leq->dx);
-	printf("dy : %f\n", leq->dy);
 	a = leq->dy / leq->dx;
 	b = leq->p.y - (a * leq->p.x);
 	plan = b * leq->dx;
 	px = plx * leq->dx;
 	py = ply * leq->dx;
 	plan = py - plan;
-    leq->xprime.x = plan - px;
-    leq->xprime.y = leq->dy - leq->dx;
+    //leq->xprime.a = plan - px;
+    //leq->xprime.b = leq->dy - leq->dx;
+
+	leq->xprime.x = plan;
+    leq->xprime.y = px;
+	leq->xprime.z = leq->dy;
+	leq->xprime.w = leq->dx;
+
     divxy = leq->dx / leq->dy;
 	divyy = leq->dy / leq->dy;
 	plan = (plan / leq->dx);
 	plan = plan + (b * divyy);
-    leq->yprime.x = plan - ((px / leq->dx) + (b * divxy));
-    leq->yprime.y = (divyy - divxy);
+
+    //leq->yprime.x = plan - ((px / leq->dx) + (b * divxy));
+    //leq->yprime.y = (divyy - divxy);
+	leq->yprime.x = plan;
+    leq->yprime.y = (px / leq->dx) + (b * divxy);
+	leq->yprime.z = divyy;
+    leq->yprime.w = divxy;
 }
 
 void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
@@ -35,14 +42,15 @@ void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
 	float x;
     float y;
 
-	printf("angle : %f -> %f\n",a, rad2deg(a));
-	leq->pprime.x = leq->xprime.x * tanf(a) / leq->xprime.y * tanf(a);
-	leq->pprime.y = leq->yprime.x * tanf(a) / leq->yprime.y * tanf(a);
-	printf("P' : %f, %f\n", leq->pprime.x, leq->pprime.y);
+	leq->pprime.x = (leq->xprime.x - (leq->xprime.y * tanf(a)))
+		/ (leq->xprime.z - (leq->xprime.w * tanf(a)));
+	leq->pprime.y = (leq->yprime.x - (leq->yprime.y * tanf(a)))
+		/ (leq->yprime.z - (leq->yprime.w * tanf(a)));
     x = leq->pprime.x - plx;
     y = leq->pprime.y - ply;
 	leq->dist = sqrtf(x * x + y * y);
 }
+
 /*
     d = leq->d;
 	a = d->dy / d->dx;
@@ -89,5 +97,53 @@ void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
     x = leq->pprime.x - plx;
     y = leq->pprime.y - ply;
 	leq->dist = sqrtf(x * x + y * y);
+}
+*/
+/*
+void precompute_linear_equation(t_linear_eq *leq, float plx, float ply)
+{
+	leq->plan = (leq->p.x - plx) * leq->dy + (ply - leq->p.y) * leq->dx;;
+}
+
+void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
+{
+	float       frac;
+	float		cross;
+	float 		dx;
+	float 		dy;
+	t_vecf2     new;
+	t_vecf2     dist;
+
+	make_divline(&seg, line->p1, line->p2);
+	new.x = pl->x + sinf(angle) * pl->cam.depth;
+    new.y = pl->y + cosf(angle) * pl->cam.depth;
+	dx = pl->x * sinf(angle);
+    dy = pl->y * cosf(angle);
+	player.p = pl->cam.dvl_lr.p;
+	player.dx = new.x - pl->x;
+	player.dy = new.y - pl->y;
+	frac = intersect_vector(&seg, &player);
+	new.x = seg.p.x + float_round(seg.dx * frac);
+	new.y = seg.p.y + float_round(seg.dy * frac);
+	dist.x = new.x - pl->x;
+	dist.y = new.y - pl->y;
+	return (sqrtf(dist.x * dist.x + dist.y * dist.y));
+
+
+	dx = plx * sinf(a);
+    dy = ply * cosf(a);
+	cross = (leq->dy * dx) - (leq->dx * dy);
+	frac = leq->plan / cross;
+	printf("frac : %f\n", frac);
+	if (frac <= 0.0)
+		frac = 0;
+	if (frac >= 1.0)
+		frac = 1;
+	new.x = leq->p.x + float_round(leq->dx * frac);
+	new.y = leq->p.y + float_round(leq->dy * frac);
+	//printf("NEW = %f %f\n", new.x, new.y);
+	dist.x = new.x - plx;
+	dist.y = new.y - ply;
+	leq->dist = sqrtf(dist.x * dist.x + dist.y * dist.y);
 }
 */

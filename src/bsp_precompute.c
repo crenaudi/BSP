@@ -139,7 +139,6 @@ void precompute(t_engine *e, t_lst_line *lstlines, t_player *pl)
             lstlines->leq[i].dx = line->p2.x - line->p1.x;
             lstlines->leq[i].dy = line->p2.y - line->p1.y;
         }
-        printf("p1 %f, %f p2 %f, %f", line->p1.x, line->p1.y, line->p2.x, line->p2.y);
         precompute_linear_equation(&lstlines->leq[i], pl->x, pl->y);
     }
     raycast(e, pl, lstlines);

@@ -2,10 +2,9 @@
 
 int     run(t_engine *e)
 {
-	check_move(e);
+	//check_move(e);
     bsp_renderer(e, e->player, e->map->bsp);
     mlx_put_image_to_window(e->mlx_ptr, e->win_ptr, e->img->ptr, 0, 0);
-    mlx_string_put(e->mlx_ptr, e->win_ptr, 30, 30, 0xFFFFFF, "LEVEL");
 	if (e->nsrc)
 		e->img = e->srcs[0];
 	else

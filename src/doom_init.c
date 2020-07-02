@@ -12,7 +12,7 @@ t_player	    init_player(void)
 	p.y = 80.;
 	p.eyes_dirx = 0.06f;
     p.eyes_diry = 0.0f;
-    p.eyes_height = 1024 / 2;
+    p.eyes_height = HEIGHT / 2;
 	return (p);
 }
 
