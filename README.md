@@ -24,3 +24,4 @@ source de travaille:
 - http://deptinfo.unice.fr/twiki/bin/view/Minfo03/RapportMedioniXavier#Initialisation_de_la_bounding_bo
 - http://deptinfo.unice.fr/twiki/bin/view/Minfo03/AlgosJeux3DRapport#Ray_Casting_impl_mentation
 - https://fabiensanglard.net/doomIphone/doomClassicRenderer.php
+- https://www.youtube.com/watch?v=HQYsFshbkYw&feature=youtu.be&t=3m50s
