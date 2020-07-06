@@ -22,7 +22,7 @@ void		init_global(t_global *global, t_engine *e, t_lst_line *polygons)
 	t_map		map;
 
 	pl = init_player();
-    pl.cam = init_cam2d(pl.x, pl.y, pl.eyes_dirx);
+    pl.cam = init_cam2d(pl.x, pl.y, pl.eyes_dirx, (float)e->xplan);
     map = init_map(e, polygons, 1);
 	global->player = pl;
 	global->map = map;

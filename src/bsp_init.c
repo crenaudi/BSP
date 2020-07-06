@@ -2,13 +2,14 @@
 
 t_map		init_map(t_engine *e, t_lst_line *polygons, int nb_sectors)
 {
-	t_map      mp;
+	t_map      	mp;
+	t_bspnode	*bsp;
 
-	mp.nb_sectors = nb_sectors;
-    mp.bsp = bspbuild(polygons);
-	if (mp.bsp == NULL)
+	bsp = bspbuild(polygons);
+	if (bsp == NULL)
 		doom_error(e, 0 ^ (1 << 16), "BSP fail");
-    //mp.sectors = ();
+	mp.nb_sectors = nb_sectors;
+    mp.bsp = bsp;
 	return (mp);
 }
 

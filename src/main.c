@@ -2,8 +2,11 @@
 
 int     run(t_engine *e)
 {
-	//check_move(e);
-    bsp_renderer(e, e->player, e->map->bsp);
+	t_bspnode *map;
+
+	map = e->map->bsp;
+	check_move(e);
+    bsp_renderer(e, e->player, map);
     mlx_put_image_to_window(e->mlx_ptr, e->win_ptr, e->img->ptr, 0, 0);
 	if (e->nsrc)
 		e->img = e->srcs[0];
@@ -36,7 +39,6 @@ int main(void)
 
     ft_bzero(&engine, sizeof(t_engine));
     init_engine(&engine, &polygons);
-
     mlx_loop_hook(engine.mlx_ptr, run, &engine);
 	mlx_hook(engine.win_ptr, 2, (1L << 0), key_press, &engine);
 	mlx_hook(engine.win_ptr, 3, (1L << 1), key_release, &engine);

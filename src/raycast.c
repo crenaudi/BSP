@@ -1,25 +1,5 @@
 #include "../include/bsp.h"
-/*
-static float distmin(t_vecf3 p1, float plx, float ply)
-{
-	float x;
-	float y;
 
-	x = p1.x - plx;
-	y = p1.y - ply;
-	return (sqrtf(x * x + y * y));
-}
-
-static float distmax(t_vecf3 p2, float plx, float ply)
-{
-	float x;
-	float y;
-
-	x = p2.x - plx;
-	y = p2.y - ply;
-	return (sqrtf(x * x + y * y));
-}
-*/
 static void	info_col(t_engine *e, t_cam2d c, float dist, int x)
 {
 	float       err;
@@ -39,7 +19,7 @@ static void	info_col(t_engine *e, t_cam2d c, float dist, int x)
 	start = (start_wall < 0) ? 0 : start_wall;
 	end = (end_wall > e->xplan) ? e->xplan : end_wall;
 	draw_col(e, x, start, end, dist);
-	//printf("\n");
+	//printf("dist %f / start %d / end %d\n", dist, start, end);
 }
 
 void	raycast(t_engine *e, t_player *pl, t_lst_line *lines)
@@ -56,17 +36,16 @@ void	raycast(t_engine *e, t_player *pl, t_lst_line *lines)
 	ft_bzero(depth, e->xplan * sizeof(float));
 	while (++x < e->xplan)
 	{
-		angle = (float)(pl->eyes_dirx - pl->cam.half_fov)
+		angle = pl->eyes_dirx - pl->cam.half_fov
 			+ (float)(x) / (float)(e->xplan) * pl->cam.fov;
         i = -1;
-		//printf("X == %d\n", x);
+		//printf("X == %d angle = %f\n", x, angle);
         while (++i < lines->count)
         {
             line_p = &lines->lst[i];
-            if (angle >= line_p->angle1 && angle <= line_p->angle2)
+			if (angle >= line_p->angle1 && angle <= line_p->angle2)
             {
 				execute_linear_equation(&lines->leq[i], pl->x, pl->y, angle);
-				//printf("line %d : %f\n", line_p->linedef, lines->leq[i].dist);
 				if (depth[x] == 0 || depth[x] > lines->leq[i].dist)
 				{
 					depth[x] = lines->leq[i].dist;

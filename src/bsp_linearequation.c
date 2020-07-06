@@ -42,10 +42,10 @@ void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
 	float x;
     float y;
 
-	leq->pprime.x = (leq->xprime.x - (leq->xprime.y * tanf(a)))
-		/ (leq->xprime.z - (leq->xprime.w * tanf(a)));
-	leq->pprime.y = (leq->yprime.x - (leq->yprime.y * tanf(a)))
-		/ (leq->yprime.z - (leq->yprime.w * tanf(a)));
+	leq->pprime.x = (leq->xprime.x + (leq->xprime.y * tanf(a)))
+		/ (leq->xprime.z + (leq->xprime.w * tanf(a)));
+	leq->pprime.y = (leq->yprime.x + (leq->yprime.y * tanf(a)))
+		/ (leq->yprime.z + (leq->yprime.w * tanf(a)));
     x = leq->pprime.x - plx;
     y = leq->pprime.y - ply;
 	leq->dist = sqrtf(x * x + y * y);

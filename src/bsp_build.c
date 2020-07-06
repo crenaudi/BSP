@@ -2,6 +2,7 @@
 
 void cpyl(t_line *dest, t_line *src)
 {
+    if (dest != NULL && src != NULL)
     dest->p1 = src->p1;
     dest->p2 = src->p2;
     dest->twoside = src->twoside;
@@ -25,6 +26,8 @@ t_bspnode   *bspbuild(t_lst_line *lines)
     int         v[2];
     int         i;
 
+    if (lines->count <= 0)
+        return (NULL);
     v[1] = INT_MAX;
     i = -1;
     bestl = lines->lst[0];
@@ -36,8 +39,10 @@ t_bspnode   *bspbuild(t_lst_line *lines)
     }
     node = init_node();
     cpyl(&node->line, &bestl);
-    if(v[1] == INT_MAX && lines->count < 2)
-        return(node);
+    printf("\nv1 %d count %d\n", v[1], lines->count);
+    printf("\nBest line %d (%f, %f) (%f, %f)\n", node->line.linedef, node->line.p1.x,
+        node->line.p1.y, node->line.p2.x, node->line.p2.y);
+
     make_divline(&node->divline, bestl.p1, bestl.p2);
     init_2lstline(&front_back[0], &front_back[1]);
     execute_split(lines, &bestl, &front_back[0], &front_back[1]);

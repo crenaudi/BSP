@@ -1,21 +1,37 @@
 #include "../include/bsp.h"
 
-float		evaluate_pointonview(t_cam2d c, float x, float y)
+int		evaluate_pointonview(t_cam2d c, t_divline pl, float objx, float objy)
 {
 	float 	angle;
 	float	dist;
 	t_vecf2	fvec;
 
-	fvec.x = x - c.dvl_lr.p.x;
-	fvec.y = y - c.dvl_lr.p.y;
+	fvec.x = objx - pl.p.x;
+	fvec.y = objy - pl.p.y;
 	dist = sqrtf(fvec.x * fvec.x + fvec.y * fvec.y);
-    angle = atan2f(c.dvl_lr.dy, c.dvl_lr.dx) - atan2f(fvec.y, fvec.x);
+    angle = atan2f(pl.dy, pl.dx) - atan2f(fvec.y, fvec.x);
     if (angle < -M_PI)
         angle += 2 * M_PI;
     if (angle > M_PI)
         angle -= 2 * M_PI;
 	if (fabs(angle) < c.half_fov && dist >= 0.5f && dist < c.depth)
-		return (angle);
+		return (SUCCESS);
     else
-        return (0);
+        return (ERROR);
+}
+
+float	add_angle4vector(t_cam2d c, t_divline pl, float objx, float objy)
+{
+	float 	angle;
+	t_vecf2	fvec;
+
+(void)c;
+	fvec.x = objx - pl.p.x;
+	fvec.y = objy - pl.p.y;
+    angle = atan2f(pl.dy, pl.dx) - atan2f(fvec.y, fvec.x);
+    if (angle < -M_PI)
+        angle += 2 * M_PI;
+    if (angle > M_PI)
+        angle -= 2 * M_PI;
+	return (angle);
 }

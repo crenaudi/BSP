@@ -158,7 +158,8 @@ int         sign(float i);
 float       float_round(float x);
 int         pointonside(t_vecf3 pt, t_divline *dvl);
 int         lineonside(t_line *l, t_divline *dvl);
-float		evaluate_pointonview(t_cam2d c, float x, float y);
+int         evaluate_pointonview(t_cam2d c, t_divline pl, float objx, float objy);
+float       add_angle4vector(t_cam2d c, t_divline pl, float objx, float objy);
 int         seg_onview(t_cam2d c, t_line *line, t_vecf2 depth);
 void        precompute_linear_equation(t_linear_eq *leq, float plx, float ply);
 void        execute_linear_equation(t_linear_eq *leq, float plx, float ply,
