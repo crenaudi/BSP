@@ -32,12 +32,12 @@
 typedef struct s_map        t_map;
 typedef struct s_sector     t_sector;
 typedef struct s_line       t_line;
-typedef struct s_lst_line   t_lst_line;
-typedef struct s_linear_eq  t_linear_eq;
+typedef struct s_lstl       t_lstl;
 typedef struct s_bspnode    t_bspnode;
 typedef struct s_player     t_player;
 typedef struct s_engine     t_engine;
 typedef struct s_global     t_global;
+typedef struct s_vxinfo     t_vxinfo;
 
 struct s_line
 {
@@ -49,10 +49,8 @@ struct s_line
     float           offset;
     int             flags;//transparence ex
     int             sector;
-    float           angle1;
-    float           angle2;
 };
-
+/*
 struct s_linear_eq
 {
     float           plan;
@@ -63,6 +61,24 @@ struct s_linear_eq
     t_vecf4         xprime;
     t_vecf4         yprime;
     t_vecf2         pprime;
+};*/
+
+struct s_vxinfo
+{
+	t_vecf2        vx1;
+	t_vecf2        vx2;
+	float 	       tx1;
+	float 	       tx2;
+	float 	       tz1;
+	float 	       tz2;
+    float	       yceil;
+	float 	       yfloor;
+    int            x1;
+    int            x2;
+    int		       y1a;
+	int		       y1b;
+	int		       y2a;
+	int		       y2b;
 };
 
 /*
@@ -77,11 +93,11 @@ offset  Size (bytes)
 26	     2       Left child
 */
 
-struct s_lst_line
+struct s_lstl
 {
     int             count;
     t_line          lst[256];
-    t_linear_eq     leq[256];
+    t_vxinfo        vx[256];
 };
 
 struct s_bspnode
@@ -93,29 +109,29 @@ struct s_bspnode
 
 struct s_sector
 {
-    float       h_ceil;
-    float       h_floor;
-    //t_obj       obj[];//128 max
-    t_texture   *wall;
-    t_texture   *ceil;
-    t_texture   *floor;
+    float       ceil;
+    float       floor;
+    //t_texture   *wall;
+    //t_texture   *ceil;
+    //t_texture   *floor;
 };
 
 struct s_map
 {
     int         nb_sectors;
     t_bspnode   *bsp;
-    //t_sector    sectors[];
+    t_sector    *sectors;
 };
 
 struct			s_player
 {
 	float	    x;
 	float	    y;
+    float	    z;
 	float		eyes_dirx;
     float       eyes_diry;
-    int         eyes_height;
     int         height;
+    int         eyes_height;
     t_cam2d		cam;
 };
 
@@ -135,6 +151,8 @@ struct			s_engine
     t_map		*map;
     t_img		*img;
 	t_img		*srcs[2];
+    float       hfov;
+    float       vfov;
     int         nsrc;
 	int         xplan;
 	int         yplan;
@@ -159,40 +177,40 @@ float       float_round(float x);
 int         pointonside(t_vecf3 pt, t_divline *dvl);
 int         lineonside(t_line *l, t_divline *dvl);
 int         evaluate_pointonview(t_cam2d c, t_divline pl, float objx, float objy);
-float       add_angle4vector(t_cam2d c, t_divline pl, float objx, float objy);
+float       add_angle4vector(float x, float y, t_player *pl);
 int         seg_onview(t_cam2d c, t_line *line, t_vecf2 depth);
-void        precompute_linear_equation(t_linear_eq *leq, float plx, float ply);
-void        execute_linear_equation(t_linear_eq *leq, float plx, float ply,
-    float a);
+//void        precompute_linear_equation(t_linear_eq *leq, float plx, float ply);
+//void        execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a);
 
 /*******************************************************************************
     INIT FUNCTION
 *******************************************************************************/
 
-void		init_engine(t_engine *e, t_lst_line *polygons);
+void		init_engine(t_engine *e, t_lstl *polygons);
 t_player    init_player(void);
-t_map		init_map(t_engine *e, t_lst_line *polygons, int nb_sectors);
-void        init_lstline(t_lst_line *lines);
-void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2);
+t_map		init_map(t_engine *e, t_lstl *polygons, int nb_sectors);
+void        init_lstline(t_lstl *lines);
+void        init_2lstline(t_lstl *lst1, t_lstl *lst2);
 t_bspnode   *init_node();
-void        add_polygon2list(t_lst_line *lines, t_vecf3 p1, t_vecf3 p2,
+void        add_polygon2list(t_lstl *lines, t_vecf3 p1, t_vecf3 p2,
     int flags, int sector);
-void        precompute(t_engine *e, t_lst_line *lstlines, t_player *pl);
-void		init_global(t_global *global, t_engine *e, t_lst_line *polygons);
+//void        precompute(t_engine *e, t_lstl *lstlines, t_player *pl);
+void		init_global(t_global *global, t_engine *e, t_lstl *polygons);
+t_sector	init_sector(float ceil, float floor);
+float       update_hfov(t_engine *e);
+void        update_plan(t_engine *e, int h, int w);
+void        update_srcs(t_engine *e);
 
 /*******************************************************************************
     BUILD BSP FUNCTION
 *******************************************************************************/
 
 t_line      cutline(t_line *wl, t_divline *dvl);
-int         evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade,
-    int grade);
-void        execute_split(t_lst_line *lines, t_line *spliton,
-    t_lst_line *frontlist, t_lst_line *backlist);
+int         evaluate_split(t_lstl *lines, t_line *splt, int bestgrade, int grade);
+void        execute_split(t_lstl *lines, t_line *spliton, t_lstl *frontlist, t_lstl *backlist);
 void        cpyl(t_line *dest, t_line *src);
-t_bspnode   *bspbuild(t_lst_line *lines);
-void        walk_tree(t_bspnode *node, t_cam2d c, t_lst_line *p_lines,
-    t_vecf2 depth);
+t_bspnode   *bspbuild(t_lstl *lines);
+void        walk_tree(t_bspnode *node, t_cam2d c, t_lstl *p_lines, t_vecf2 depth);
 void        bsp_renderer(t_engine *e, t_player *pl, t_bspnode *node);
 
 /*******************************************************************************
@@ -209,10 +227,11 @@ void        doom_error(t_engine *e, unsigned int err, char *line);
     DOOM_TEST
 *******************************************************************************/
 
-void	   raycast(t_engine *e, t_player *pl, t_lst_line *lines);
+void 	  raycast(t_engine *e, t_lstl *lstl);
+int		   precompute_vertex(t_vxinfo *vx, t_line *line, t_player *pl);
 int		   key_press(int key, t_engine *e);
 int		   key_release(int key, t_engine *e);
-void       draw_col(t_engine *e, int x, int start, int end, float dist);
+void       draw_col(t_engine *e, int x, int start, int end, float dist, int nbline);
 void       check_move(t_engine *e);
 
 #endif

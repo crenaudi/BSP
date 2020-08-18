@@ -4,6 +4,8 @@ void	close_map(t_map *map)
 {
     if (map->bsp)
         close_bsp(map->bsp);
+    if (map->sectors)
+        free(map->sectors);
 	ft_bzero(map, sizeof(t_map));
 }
 

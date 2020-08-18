@@ -39,15 +39,35 @@ void precompute_linear_equation(t_linear_eq *leq, float plx, float ply)
 
 void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
 {
+	float x1;
+    float y1;
+	float x2;
+    float y2;
 	float x;
     float y;
 
-	leq->pprime.x = (leq->xprime.x + (leq->xprime.y * tanf(a)))
+	x1 = (leq->xprime.x + (leq->xprime.y * tanf(a)))
 		/ (leq->xprime.z + (leq->xprime.w * tanf(a)));
-	leq->pprime.y = (leq->yprime.x + (leq->yprime.y * tanf(a)))
+	y1 = (leq->yprime.x + (leq->yprime.y * tanf(a)))
 		/ (leq->yprime.z + (leq->yprime.w * tanf(a)));
-    x = leq->pprime.x - plx;
-    y = leq->pprime.y - ply;
+
+	x2 = (leq->xprime.x - (leq->xprime.y * tanf(a)))
+		/ (leq->xprime.z - (leq->xprime.w * tanf(a)));
+	y2 = (leq->yprime.x - (leq->yprime.y * tanf(a)))
+		/ (leq->yprime.z - (leq->yprime.w * tanf(a)));
+/*
+	printf("x1 %f\n", x1);
+	printf("y1 %f\n", y1);
+	printf("x2 %f\n", x2);
+	printf("y2 %f\n", y2);*/
+	if (x1 > x2)
+    	x = x1 - plx;
+	else
+		x = x2 - plx;
+	if (y1 > y2)
+	    y = y1 - ply;
+	else
+		y = y2 - ply;
 	leq->dist = sqrtf(x * x + y * y);
 }
 
@@ -115,10 +135,10 @@ void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
 	t_vecf2     dist;
 
 	make_divline(&seg, line->p1, line->p2);
-	new.x = pl->x + sinf(angle) * pl->cam.depth;
-    new.y = pl->y + cosf(angle) * pl->cam.depth;
-	dx = pl->x * sinf(angle);
-    dy = pl->y * cosf(angle);
+	new.x = pl->x + sinff(angle) * pl->cam.depth;
+    new.y = pl->y + cosff(angle) * pl->cam.depth;
+	dx = pl->x * sinff(angle);
+    dy = pl->y * cosff(angle);
 	player.p = pl->cam.dvl_lr.p;
 	player.dx = new.x - pl->x;
 	player.dy = new.y - pl->y;
@@ -130,8 +150,8 @@ void execute_linear_equation(t_linear_eq *leq, float plx, float ply, float a)
 	return (sqrtf(dist.x * dist.x + dist.y * dist.y));
 
 
-	dx = plx * sinf(a);
-    dy = ply * cosf(a);
+	dx = plx * sinff(a);
+    dy = ply * cosff(a);
 	cross = (leq->dy * dx) - (leq->dx * dy);
 	frac = leq->plan / cross;
 	printf("frac : %f\n", frac);

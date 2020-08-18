@@ -18,11 +18,11 @@ int     run(t_engine *e)
 
 int main(void)
 {
-    t_lst_line  polygons;
+    t_lstl  polygons;
     t_engine    engine;
 
     init_lstline(&polygons);
-    add_polygon2list(&polygons, (t_vecf3){20,50,60}, (t_vecf3){70,20,60}, 0, 1);
+	add_polygon2list(&polygons, (t_vecf3){20,50,60}, (t_vecf3){70,20,60}, 0, 1);
     add_polygon2list(&polygons, (t_vecf3){70,20,60}, (t_vecf3){180,20,60}, 0, 1);
     add_polygon2list(&polygons, (t_vecf3){180,20,60}, (t_vecf3){220,60,60}, 0, 1);
     add_polygon2list(&polygons, (t_vecf3){220,60,60}, (t_vecf3){270,60,60}, 0, 1);

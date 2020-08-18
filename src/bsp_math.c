@@ -65,13 +65,13 @@ int     pointonside(t_vecf3 pt, t_divline *dvl)
 
     if (!dvl->dx) //seg aligné en x
     {
-        if (pt.x > dvl->p.x - 2 && pt.x < dvl->p.x + 2)
+        if (pt.x > dvl->p.x - .2 && pt.x < dvl->p.x + .2)//2
             return (-1); //colinear
         return ((pt.x < dvl->p.x) ? dvl->dy > 0 : dvl->dy < 0);//vrai 1 back //false 0 front
     }
     if (!dvl->dy) //seg aligné en y
     {
-        if (pt.y > dvl->p.y - 2 && pt.y < dvl->p.y + 2)
+        if (pt.y > dvl->p.y - .2 && pt.y < dvl->p.y + .2)
             return (-1); //colinear
         return ((pt.y < dvl->p.y) ? dvl->dx < 0 : dvl->dx > 0);//vrai 1 back//false 0 front
     }
@@ -81,7 +81,7 @@ int     pointonside(t_vecf3 pt, t_divline *dvl)
 	dy = pt.y - dvl->p.y;
     left = dvl->dy * dx;
     right = dy * dvl->dx;
-    if (fabs(left - right) < 0.5)
+    if (fabs(left - right) < 0.05)//.5
         return (-1); //on line
     return ((right < left) ? 0 /* front */ : 1 /* back */);
 }

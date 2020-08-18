@@ -1,7 +1,8 @@
 #include "../include/bsp.h"
 
-t_map		init_map(t_engine *e, t_lst_line *polygons, int nb_sectors)
+t_map		init_map(t_engine *e, t_lstl *polygons, int nb_sectors)
 {
+	int			i;
 	t_map      	mp;
 	t_bspnode	*bsp;
 
@@ -10,22 +11,29 @@ t_map		init_map(t_engine *e, t_lst_line *polygons, int nb_sectors)
 		doom_error(e, 0 ^ (1 << 16), "BSP fail");
 	mp.nb_sectors = nb_sectors;
     mp.bsp = bsp;
+	printf("BSP OK\n");
+	if (!(mp.sectors = malloc(sizeof(t_sector) * nb_sectors)))
+		printf("error");
+	i = -1;
+	while (++i < nb_sectors)
+		mp.sectors[i] = init_sector(0, 6);
+	printf("sector OK\n");
 	return (mp);
 }
 
-void        init_lstline(t_lst_line *lines)
+void        init_lstline(t_lstl *lines)
 {
     lines->count = 0;
     memset(&lines->lst, 256, sizeof(t_line));
-	memset(&lines->leq, 256, sizeof(t_linear_eq));
+	memset(&lines->vx, 256, sizeof(t_vxinfo));
 }
 
-void        init_2lstline(t_lst_line *lst1, t_lst_line *lst2)
+void        init_2lstline(t_lstl *lst1, t_lstl *lst2)
 {
     lst1->count = 0;
     memset(&lst1->lst, 256, sizeof(t_line));
     lst2->count = 0;
-    memset(&lst2->lst, 256, sizeof(t_line));
+    memset(&lst2->vx, 256, sizeof(t_vxinfo));
 }
 
 t_bspnode   *init_node()
@@ -38,7 +46,7 @@ t_bspnode   *init_node()
     return (node);
 }
 
-void    add_polygon2list(t_lst_line *lines, t_vecf3 p1, t_vecf3 p2, int flags, int sector)
+void    add_polygon2list(t_lstl *lines, t_vecf3 p1, t_vecf3 p2, int flags, int sector)
 {
     if (lines->count < 255)
     {

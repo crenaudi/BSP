@@ -1,6 +1,6 @@
 #include "../include/bsp.h"
 
-int     evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade, int grade)
+int     evaluate_split(t_lstl *lines, t_line *splt, int bestgrade, int grade)
 {
     t_divline   dvl;
     t_line      line_p;
@@ -23,7 +23,7 @@ int     evaluate_split(t_lst_line *lines, t_line *splt, int bestgrade, int grade
         if (info[1] == -2 && nfront++)
             nback++;
         info[2] = (nfront + nback) - lines->count;
-        grade = (((nfront > nback) ? nfront : nback) + info[2] * 8);
+        grade = (((nfront > nback) ? nfront : nback) + info[2]);
         if (grade > bestgrade)
             return (grade);
     }
@@ -61,8 +61,8 @@ t_line  cutline(t_line *wl, t_divline *dvl)
     return (new);
 }
 
-void    execute_split(t_lst_line *lines, t_line *spliton,
-    t_lst_line *frontlist, t_lst_line *backlist)
+void    execute_split(t_lstl *lines, t_line *spliton,
+    t_lstl *frontlist, t_lstl *backlist)
 {
     int         i;
     int         side;

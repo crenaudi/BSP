@@ -25,15 +25,16 @@ SRCS = 	bsp_init.c				\
 		bsp_split.c				\
 		bsp_renderer.c			\
 		bsp_precompute.c		\
-		bsp_linearequation.c	\
 		doom_init.c				\
+		doom_update.c			\
 		doom_close.c			\
 		doom_error.c			\
 		doom_key.c				\
 		doom_move.c				\
 		doom_draw.c				\
+		doom_sector.c			\
 		need_visibility.c		\
-		raycast.c				\
+		ray_renderer.c			\
 		main.c
 
 LDFLAGS = -lm
